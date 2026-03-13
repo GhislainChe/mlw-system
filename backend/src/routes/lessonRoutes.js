@@ -1,9 +1,13 @@
 const express = require('express');
 
-const { getLessonsByLanguage } = require('../controllers/lessonController');
+const {
+  getLessonsByLanguage,
+  getLessonById,
+} = require('../controllers/lessonController');
 
 const router = express.Router();
 
-router.get('/:languageId', getLessonsByLanguage);
+router.get('/lessons/:languageId', getLessonsByLanguage);
+router.get('/lesson/:lessonId', getLessonById);
 
 module.exports = router;
