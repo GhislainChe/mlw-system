@@ -27,7 +27,7 @@ export default function AppRoutes() {
             <Route path="/lessons/:languageId" element={<Lessons />} />
             <Route path="/learn" element={<Lessons />} />
             <Route path="/learn/:lessonId" element={<LessonPlayer />} />
-            <Route path="/lesson/:id" element={<LessonPlayer />} />
+            <Route path="/lesson/:lessonId" element={<LessonPlayer />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/profile" element={<Dashboard />} />
             <Route path="/settings" element={<Dashboard />} />

@@ -22,10 +22,23 @@ export default function LessonPlayer() {
       }
 
       try {
-        const res = await axios.get(`http://localhost:5000/api/lesson/${currentLessonId}`);
-        setLesson(res.data.lesson || res.data);
+        const res = await axios.get(`http://localhost:5000/api/lessons/${currentLessonId}`);
+        const payload = res.data.lesson || res.data;
+
+        if (payload?.title && payload?.content !== undefined) {
+          setLesson(payload);
+          return;
+        }
+
+        const fallbackRes = await axios.get(`http://localhost:5000/api/lesson/${currentLessonId}`);
+        setLesson(fallbackRes.data.lesson || fallbackRes.data);
       } catch (fetchError) {
-        setError('Unable to load this lesson right now.');
+        try {
+          const fallbackRes = await axios.get(`http://localhost:5000/api/lesson/${currentLessonId}`);
+          setLesson(fallbackRes.data.lesson || fallbackRes.data);
+        } catch {
+          setError('Unable to load this lesson right now.');
+        }
       } finally {
         setLoading(false);
       }

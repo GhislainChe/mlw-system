@@ -1,5 +1,5 @@
 import { BookOpen, CheckCircle, Lock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function LessonsGridCard({ lesson, index }) {
   const navigate = useNavigate();
@@ -22,11 +22,11 @@ export default function LessonsGridCard({ lesson, index }) {
     <article
       role="button"
       tabIndex={0}
-      onClick={() => navigate(`/learn/${lesson.id}`)}
+      onClick={() => navigate(`/lesson/${lesson.id}`)}
       onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          navigate(`/learn/${lesson.id}`);
+          navigate(`/lesson/${lesson.id}`);
         }
       }}
       className="cursor-pointer rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:shadow-md"
@@ -60,16 +60,15 @@ export default function LessonsGridCard({ lesson, index }) {
         <p className="text-sm text-slate-600">
           {lesson.points ? `${lesson.points} points reward` : 'Continue your learning path.'}
         </p>
-        <button
-          type="button"
+        <Link
+          to={`/lesson/${lesson.id}`}
           onClick={(event) => {
             event.stopPropagation();
-            navigate(`/learn/${lesson.id}`);
           }}
           className="rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition duration-200 hover:bg-emerald-700"
         >
-          Resume
-        </button>
+          Start Lesson
+        </Link>
       </div>
     </article>
   );
