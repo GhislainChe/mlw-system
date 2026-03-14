@@ -6,12 +6,6 @@ import LanguageCard from '../components/dashboard/LanguageCard';
 import LessonCard from '../components/dashboard/LessonCard';
 import StatCard from '../components/dashboard/StatCard';
 
-const lessons = [
-  { title: 'Greeting Lesson', lessonNumber: '01', status: 'In Progress' },
-  { title: 'Numbers Lesson', lessonNumber: '02', status: 'Completed' },
-  { title: 'Family Members', lessonNumber: '03', status: 'Locked', locked: true },
-];
-
 export default function Dashboard() {
   const [stats, setStats] = useState({
     streak: 0,
@@ -20,6 +14,7 @@ export default function Dashboard() {
     rank: 0,
   });
   const [languages, setLanguages] = useState([]);
+  const [recentLessons, setRecentLessons] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -53,6 +48,26 @@ export default function Dashboard() {
     };
 
     fetchLanguages();
+  }, []);
+
+  useEffect(() => {
+    const fetchRecentLessons = async () => {
+      try {
+        const token = localStorage.getItem('token');
+
+        const res = await axios.get('http://localhost:5000/api/dashboard/recent-lessons', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setRecentLessons(res.data);
+      } catch (fetchError) {
+        console.error('Failed to load recent lessons', fetchError);
+      }
+    };
+
+    fetchRecentLessons();
   }, []);
 
   const statCards = [
@@ -114,8 +129,8 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {lessons.map((lesson) => (
-            <LessonCard key={lesson.title} {...lesson} />
+          {recentLessons.map((lesson) => (
+            <LessonCard key={lesson.id} lesson={lesson} />
           ))}
         </div>
       </section>

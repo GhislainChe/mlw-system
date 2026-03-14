@@ -15,13 +15,13 @@ import { NavLink } from 'react-router-dom';
 import { logout } from '../../utils/auth';
 
 const navigationItems = [
-  { label: 'Dashboard', to: '/dashboard', icon: House },
-  { label: 'Languages', to: '/languages', icon: Globe },
-  { label: 'Lessons', to: '/lessons', icon: BookOpen },
-  { label: 'Learn', to: '/lessons', icon: PlayCircle },
-  { label: 'Leaderboard', to: '/leaderboard', icon: Trophy },
-  { label: 'Profile', to: '/dashboard', icon: User },
-  { label: 'Settings', to: '/dashboard', icon: Settings },
+  { label: 'Dashboard', to: '/dashboard', icon: House, end: true },
+  { label: 'Languages', to: '/languages', icon: Globe, end: true },
+  { label: 'Lessons', to: '/lessons', icon: BookOpen, end: false },
+  { label: 'Learn', to: '/learn', icon: PlayCircle, end: true },
+  { label: 'Leaderboard', to: '/leaderboard', icon: Trophy, end: true },
+  { label: 'Profile', to: '/profile', icon: User, end: true },
+  { label: 'Settings', to: '/settings', icon: Settings, end: true },
 ];
 
 function SidebarContent({ onClose }) {
@@ -49,10 +49,11 @@ function SidebarContent({ onClose }) {
       </div>
 
       <nav className="mt-6 flex-1 space-y-2">
-        {navigationItems.map(({ label, to, icon: Icon }) => (
+        {navigationItems.map(({ label, to, icon: Icon, end }) => (
           <NavLink
             key={label}
             to={to}
+            end={end}
             onClick={onClose}
             className={({ isActive }) =>
               [

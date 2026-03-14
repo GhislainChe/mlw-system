@@ -1,6 +1,20 @@
 import { Bell, Menu, Search } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 export default function Header({ onMenuOpen }) {
+  const location = useLocation();
+
+  const getPageTitle = () => {
+    if (location.pathname.includes('dashboard')) return 'Dashboard';
+    if (location.pathname.includes('languages')) return 'Languages';
+    if (location.pathname.includes('lessons')) return 'Lessons';
+    if (location.pathname.includes('learn')) return 'Learn';
+    if (location.pathname.includes('leaderboard')) return 'Leaderboard';
+    if (location.pathname.includes('profile')) return 'Profile';
+    if (location.pathname.includes('settings')) return 'Settings';
+    return 'MLW';
+  };
+
   return (
     <header className="rounded-[1.6rem] border border-[#dce6de] bg-[#f7f8f2] shadow-sm">
       <div className="flex items-center gap-4 px-4 py-4 sm:px-5">
@@ -14,8 +28,8 @@ export default function Header({ onMenuOpen }) {
           </button>
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-[#7b8f82]">Workspace</p>
-            <h1 className="text-[1.55rem] font-semibold tracking-[-0.04em] text-[#17392d]">
-              Dashboard
+            <h1 className="text-xl font-semibold tracking-[-0.04em] text-[#17392d]">
+              {getPageTitle()}
             </h1>
           </div>
         </div>

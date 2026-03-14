@@ -1,41 +1,39 @@
-const languages = [
-  {
-    name: 'Bafut',
-    village: 'North West',
-    description: 'Daily expressions, greetings, and cultural context.',
-  },
-  {
-    name: 'Mungaka',
-    village: 'Bali',
-    description: 'Foundational vocabulary and sentence rhythm practice.',
-  },
-  {
-    name: 'Metaʼ',
-    village: 'Mankon',
-    description: 'Core conversation lessons with listening prompts.',
-  },
-];
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+
+import LanguagesGridCard from '../components/dashboard/LanguagesGridCard';
 
 export default function Languages() {
+  const [languages, setLanguages] = useState([]);
+
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/languages');
+        setLanguages(res.data.languages || res.data || []);
+      } catch (error) {
+        console.error('Failed to fetch languages', error);
+      }
+    };
+
+    fetchLanguages();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm uppercase tracking-[0.35em] text-cyan-200/70">Languages</p>
-        <h2 className="mt-2 text-3xl font-semibold text-white">Explore language paths</h2>
+        <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">Languages</p>
+        <h2 className="mt-2 text-[1.55rem] font-semibold tracking-[-0.03em] text-[#17392d]">
+          Explore available languages
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Choose a language path and begin learning with guided lessons.
+        </p>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {languages.map((language) => (
-          <article
-            key={language.name}
-            className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:bg-white/[0.07]"
-          >
-            <div className="inline-flex rounded-2xl bg-cyan-400/15 px-3 py-1 text-xs font-semibold text-cyan-200">
-              {language.village}
-            </div>
-            <h3 className="mt-4 text-2xl font-semibold text-white">{language.name}</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-300">{language.description}</p>
-          </article>
+          <LanguagesGridCard key={language.id} language={language} />
         ))}
       </div>
     </div>
