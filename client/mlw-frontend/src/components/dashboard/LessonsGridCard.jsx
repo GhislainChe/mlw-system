@@ -22,11 +22,11 @@ export default function LessonsGridCard({ lesson, index }) {
     <article
       role="button"
       tabIndex={0}
-      onClick={() => navigate(`/lesson/${lesson.id}`)}
+      onClick={() => navigate(`/learn/${lesson.id}`)}
       onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          navigate(`/lesson/${lesson.id}`);
+          navigate(`/learn/${lesson.id}`);
         }
       }}
       className="cursor-pointer rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:shadow-md"
@@ -64,7 +64,7 @@ export default function LessonsGridCard({ lesson, index }) {
           type="button"
           onClick={(event) => {
             event.stopPropagation();
-            navigate(`/lesson/${lesson.id}`);
+            navigate(`/learn/${lesson.id}`);
           }}
           className="rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition duration-200 hover:bg-emerald-700"
         >

@@ -105,7 +105,7 @@ export default function Lessons() {
 
               <button
                 type="button"
-                onClick={() => navigate(`/lesson/${recentProgress.lesson_id}`)}
+                onClick={() => navigate(`/learn/${recentProgress.lesson_id}`)}
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-emerald-700"
               >
                 Resume Lesson

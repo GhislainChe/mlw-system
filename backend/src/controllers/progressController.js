@@ -2,8 +2,15 @@ const db = require('../config/db');
 
 const markLessonCompleted = async (req, res) => {
   try {
-    const { lessonId } = req.params;
+    const lessonId = req.params.lessonId || req.body.lesson_id;
     const userId = req.user.id;
+
+    if (!lessonId) {
+      return res.status(400).json({
+        success: false,
+        message: 'lesson_id is required.',
+      });
+    }
 
     await db.execute(
       'INSERT INTO progress (user_id, lesson_id, completed, completed_at) VALUES (?, ?, true, NOW())',

@@ -34,7 +34,7 @@ export default function LessonCard({ lesson }) {
         </p>
         <button
           type="button"
-          onClick={() => navigate(`/lesson/${lesson.id}`)}
+          onClick={() => navigate(`/learn/${lesson.id}`)}
           className="inline-flex items-center gap-2 rounded-2xl bg-[#17392d] px-4 py-2.5 text-sm font-semibold text-white transition duration-200 hover:bg-[#214d3d]"
         >
           <PlayCircle className="h-4 w-4" />
