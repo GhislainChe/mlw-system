@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply min-h-screen bg-slate-950 text-slate-100 antialiased;
+    background-image:
+      radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 28%),
+      radial-gradient(circle at bottom right, rgba(249, 115, 22, 0.14), transparent 26%),
+      linear-gradient(135deg, #020617, #0f172a 58%, #111827);
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
+}
