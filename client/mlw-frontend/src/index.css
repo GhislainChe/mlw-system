@@ -1,16 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@700;800&family=Quicksand:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  html {
+    font-family: 'Lato', sans-serif;
+  }
+
   body {
     @apply min-h-screen bg-slate-950 text-slate-100 antialiased;
     background-image:
       radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 28%),
       radial-gradient(circle at bottom right, rgba(249, 115, 22, 0.14), transparent 26%),
       linear-gradient(135deg, #020617, #0f172a 58%, #111827);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Quicksand', sans-serif;
   }
 
   #root {

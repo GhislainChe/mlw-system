@@ -93,11 +93,11 @@ function HeroVisual() {
         </svg>
 
         <div className="absolute inset-x-0 bottom-0 px-4 pb-4 sm:px-5 sm:pb-5">
-          <div className="mx-auto max-w-lg rounded-[1.25rem] bg-[#17392d]/88 px-4 py-4 text-center shadow-lg backdrop-blur-sm">
-            <p className="text-lg font-semibold leading-tight text-white sm:text-[1.45rem]">
+          <div className="mx-auto max-w-lg rounded-[1.25rem] bg-[#f8f6ee] px-4 py-4 text-center shadow-lg ring-1 ring-[#d9d8cd]">
+            <p className="text-lg font-semibold leading-tight text-[#17392d] sm:text-[1.45rem]">
               A modern home for West Region languages.
             </p>
-            <p className="mt-2 text-sm leading-6 text-[#eef5f0] sm:text-[0.95rem]">
+            <p className="mt-2 text-sm leading-6 text-slate-700 sm:text-[0.95rem]">
               Learn, preserve, and reconnect through guided lessons built around language and culture.
             </p>
           </div>
@@ -144,7 +144,7 @@ export default function Landing() {
         <nav className="flex flex-wrap items-center justify-between gap-3 rounded-full border border-slate-200 bg-white px-4 py-3">
           <Link
             to="/"
-            className="font-['Quicksand',sans-serif] text-[1.45rem] font-semibold tracking-[-0.05em] text-[#17392d] sm:text-[1.7rem]"
+            className="font-['Montserrat',sans-serif] text-[1.35rem] font-extrabold tracking-[-0.05em] text-[#17392d] sm:text-[1.55rem]"
           >
             MLW
           </Link>
