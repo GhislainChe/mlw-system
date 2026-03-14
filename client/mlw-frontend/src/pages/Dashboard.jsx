@@ -1,36 +1,10 @@
+import axios from 'axios';
 import { BookOpen, Flame, Star, Trophy } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import LanguageCard from '../components/dashboard/LanguageCard';
 import LessonCard from '../components/dashboard/LessonCard';
 import StatCard from '../components/dashboard/StatCard';
-
-const stats = [
-  { label: 'Day Streak', value: '12', icon: Flame, tone: 'bg-emerald-600' },
-  { label: 'Total Points', value: '1,240', icon: Star, tone: 'bg-[#17392d]' },
-  { label: 'Lessons Completed', value: '28', icon: BookOpen, tone: 'bg-[#6c8a58]' },
-  { label: 'Leaderboard Rank', value: '#4', icon: Trophy, tone: 'bg-[#b8893f]' },
-];
-
-const languages = [
-  {
-    name: 'Ghomala',
-    description: 'Resume practical conversation lessons and pronunciation review.',
-    image:
-      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    name: 'Yemba',
-    description: 'Continue vocabulary building with sentence flow and speaking prompts.',
-    image:
-      'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    name: 'Medumba',
-    description: 'Return to recent lessons focused on daily usage and cultural context.',
-    image:
-      'https://images.unsplash.com/photo-1465379944081-7f47de8d74ac?auto=format&fit=crop&w=900&q=80',
-  },
-];
 
 const lessons = [
   { title: 'Greeting Lesson', lessonNumber: '01', status: 'In Progress' },
@@ -39,13 +13,78 @@ const lessons = [
 ];
 
 export default function Dashboard() {
+  const [stats, setStats] = useState({
+    streak: 0,
+    points: 0,
+    completedLessons: 0,
+    rank: 0,
+  });
+  const [languages, setLanguages] = useState([]);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem('token');
+
+        const res = await axios.get('http://localhost:5000/api/dashboard/stats', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setStats(res.data);
+      } catch (fetchError) {
+        setError('Unable to load dashboard statistics right now.');
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/languages');
+        setLanguages(res.data.languages || res.data || []);
+      } catch (fetchError) {
+        console.error('Failed to load languages', fetchError);
+      }
+    };
+
+    fetchLanguages();
+  }, []);
+
+  const statCards = [
+    { label: 'Day Streak', value: stats.streak, icon: Flame, tone: 'bg-emerald-600' },
+    { label: 'Total Points', value: stats.points, icon: Star, tone: 'bg-[#17392d]' },
+    {
+      label: 'Lessons Completed',
+      value: stats.completedLessons,
+      icon: BookOpen,
+      tone: 'bg-[#6c8a58]',
+    },
+    {
+      label: 'Leaderboard Rank',
+      value: stats.rank,
+      icon: Trophy,
+      tone: 'bg-[#b8893f]',
+    },
+  ];
+
   return (
     <div className="space-y-8">
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {statCards.map((stat) => (
           <StatCard key={stat.label} {...stat} />
         ))}
       </section>
+
+      {error ? (
+        <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {error}
+        </p>
+      ) : null}
 
       <section>
         <div className="mb-4">
@@ -58,8 +97,8 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {languages.map((language) => (
-            <LanguageCard key={language.name} {...language} />
+          {languages.slice(0, 3).map((language) => (
+            <LanguageCard key={language.id} language={language} />
           ))}
         </div>
       </section>

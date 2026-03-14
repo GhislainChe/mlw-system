@@ -10,7 +10,7 @@ const getDashboardStats = async (req, res) => {
     );
 
     const [pointsRows] = await db.execute(
-      'SELECT SUM(points) AS points FROM progress WHERE user_id = ?',
+      'SELECT IFNULL(SUM(points), 0) AS points FROM progress WHERE user_id = ?',
       [userId]
     );
 
@@ -20,14 +20,14 @@ const getDashboardStats = async (req, res) => {
     );
 
     const [rankRows] = await db.execute(
-      `SELECT COUNT(*) + 1 AS rank
+      `SELECT COUNT(*) + 1 AS user_rank
        FROM (
-         SELECT user_id, SUM(points) AS total
+         SELECT user_id, SUM(points) AS total_points
          FROM progress
          GROUP BY user_id
        ) leaderboard
-       WHERE total > (
-         SELECT SUM(points) FROM progress WHERE user_id = ?
+       WHERE total_points > (
+         SELECT IFNULL(SUM(points), 0) FROM progress WHERE user_id = ?
        )`,
       [userId]
     );
@@ -36,7 +36,7 @@ const getDashboardStats = async (req, res) => {
       streak: streakRows[0]?.current_streak || 0,
       points: pointsRows[0]?.points || 0,
       completedLessons: completedRows[0]?.completed || 0,
-      rank: rankRows[0]?.rank || 1,
+      rank: rankRows[0]?.user_rank || 1,
     });
   } catch (error) {
     return res.status(500).json({
@@ -46,6 +46,35 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
+const getRecentLessons = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const [lessons] = await db.execute(
+      `SELECT
+          lessons.id,
+          lessons.title,
+          lessons.language_id,
+          progress.completed,
+          progress.points
+       FROM progress
+       JOIN lessons ON lessons.id = progress.lesson_id
+       WHERE progress.user_id = ?
+       ORDER BY progress.completed_at DESC
+       LIMIT 5`,
+      [userId]
+    );
+
+    return res.status(200).json(lessons);
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Failed to fetch recent lessons.',
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   getDashboardStats,
+  getRecentLessons,
 };
