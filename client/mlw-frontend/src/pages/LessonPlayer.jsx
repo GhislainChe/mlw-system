@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 
 export default function LessonPlayer() {
-  const { lessonId } = useParams();
+  const { id } = useParams();
 
   return (
     <div className="space-y-6">
@@ -9,7 +9,7 @@ export default function LessonPlayer() {
         <p className="text-sm uppercase tracking-[0.35em] text-cyan-200/70">Lesson Player</p>
         <h2 className="mt-2 text-3xl font-semibold text-white">
           Learn at your own pace
-          {lessonId ? ` • Lesson ${lessonId}` : ''}
+          {id ? ` - Lesson ${id}` : ''}
         </h2>
       </div>
 

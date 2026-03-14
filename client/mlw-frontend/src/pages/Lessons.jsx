@@ -40,7 +40,7 @@ export default function Lessons() {
             </div>
 
             <Link
-              to={`/learn/${lesson.id}`}
+              to={`/lesson/${lesson.id}`}
               className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 px-5 py-3 font-semibold text-slate-950 transition hover:opacity-90"
             >
               Open lesson

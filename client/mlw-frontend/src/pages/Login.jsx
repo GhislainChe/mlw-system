@@ -1,6 +1,47 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { loginUser } from '../api/api';
 
 export default function Login() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      const data = await loginUser(formData);
+
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        navigate('/dashboard');
+        return;
+      }
+
+      setError(data.message || 'Login failed. Please try again.');
+    } catch (submitError) {
+      setError('Unable to log in right now. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#fcfcf8] text-slate-900">
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
@@ -91,11 +132,14 @@ export default function Login() {
               </p>
             </div>
 
-            <form className="mt-6 space-y-4">
+            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <label className="block">
                 <span className="mb-2 block text-sm font-medium text-slate-700">Email</span>
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   placeholder="you@example.com"
                   className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
                 />
@@ -105,10 +149,19 @@ export default function Login() {
                 <span className="mb-2 block text-sm font-medium text-slate-700">Password</span>
                 <input
                   type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   placeholder="Enter your password"
                   className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
                 />
               </label>
+
+              {error ? (
+                <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                  {error}
+                </p>
+              ) : null}
 
               <div className="flex items-center justify-between gap-3 text-sm">
                 <label className="flex items-center gap-2 text-slate-600">
@@ -125,9 +178,10 @@ export default function Login() {
 
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="w-full rounded-2xl bg-emerald-600 px-4 py-3 font-semibold text-white transition hover:bg-emerald-700"
               >
-                Sign in
+                {isSubmitting ? 'Signing in...' : 'Sign in'}
               </button>
             </form>
 

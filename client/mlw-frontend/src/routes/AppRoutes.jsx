@@ -9,48 +9,25 @@ import LessonPlayer from '../pages/LessonPlayer';
 import Lessons from '../pages/Lessons';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
-
-function getIsAuthenticated() {
-  return Boolean(localStorage.getItem('mlw_token'));
-}
-
-function PublicHomeRoute() {
-  return getIsAuthenticated() ? <Navigate to="/dashboard" replace /> : <Landing />;
-}
-
-function AuthPageRoute({ children }) {
-  return getIsAuthenticated() ? <Navigate to="/dashboard" replace /> : children;
-}
+import ProtectedRoute from './ProtectedRoute';
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<PublicHomeRoute />} />
-        <Route
-          path="/login"
-          element={
-            <AuthPageRoute>
-              <Login />
-            </AuthPageRoute>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <AuthPageRoute>
-              <Register />
-            </AuthPageRoute>
-          }
-        />
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/languages" element={<Languages />} />
-          <Route path="/lessons" element={<Lessons />} />
-          <Route path="/learn" element={<LessonPlayer />} />
-          <Route path="/learn/:lessonId" element={<LessonPlayer />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/languages" element={<Languages />} />
+            <Route path="/lessons" element={<Lessons />} />
+            <Route path="/lessons/:languageId" element={<Lessons />} />
+            <Route path="/lesson/:id" element={<LessonPlayer />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

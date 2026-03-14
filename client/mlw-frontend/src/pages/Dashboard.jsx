@@ -1,56 +1,83 @@
+import { BookOpen, Flame, Star, Trophy } from 'lucide-react';
+
+import LanguageCard from '../components/dashboard/LanguageCard';
+import LessonCard from '../components/dashboard/LessonCard';
+import StatCard from '../components/dashboard/StatCard';
+
 const stats = [
-  { label: 'Languages Available', value: '12', tone: 'from-cyan-400 to-sky-500' },
-  { label: 'Lessons Completed', value: '24', tone: 'from-emerald-400 to-teal-500' },
-  { label: 'Current Streak', value: '7 days', tone: 'from-orange-400 to-amber-500' },
+  { label: 'Day Streak', value: '12', icon: Flame, tone: 'bg-emerald-600' },
+  { label: 'Total Points', value: '1,240', icon: Star, tone: 'bg-[#17392d]' },
+  { label: 'Lessons Completed', value: '28', icon: BookOpen, tone: 'bg-[#6c8a58]' },
+  { label: 'Leaderboard Rank', value: '#4', icon: Trophy, tone: 'bg-[#b8893f]' },
+];
+
+const languages = [
+  {
+    name: 'Ghomala',
+    description: 'Resume practical conversation lessons and pronunciation review.',
+    image:
+      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    name: 'Yemba',
+    description: 'Continue vocabulary building with sentence flow and speaking prompts.',
+    image:
+      'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    name: 'Medumba',
+    description: 'Return to recent lessons focused on daily usage and cultural context.',
+    image:
+      'https://images.unsplash.com/photo-1465379944081-7f47de8d74ac?auto=format&fit=crop&w=900&q=80',
+  },
+];
+
+const lessons = [
+  { title: 'Greeting Lesson', lessonNumber: '01', status: 'In Progress' },
+  { title: 'Numbers Lesson', lessonNumber: '02', status: 'Completed' },
+  { title: 'Family Members', lessonNumber: '03', status: 'Locked', locked: true },
 ];
 
 export default function Dashboard() {
   return (
-    <div className="space-y-6">
-      <section className="rounded-[2rem] border border-white/10 bg-gradient-to-r from-cyan-500/15 via-slate-900 to-emerald-500/10 p-6">
-        <p className="text-sm uppercase tracking-[0.35em] text-cyan-200/70">
-          Welcome to MLW
-        </p>
-        <h2 className="mt-3 text-3xl font-semibold text-white">
-          Learn, track progress, and stay connected to your roots.
-        </h2>
-        <p className="mt-3 max-w-2xl text-slate-300">
-          Your dashboard brings together languages, lesson access, and progress in one
-          focused space.
-        </p>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-3">
+    <div className="space-y-8">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5"
-          >
-            <div
-              className={`inline-flex rounded-2xl bg-gradient-to-r ${stat.tone} px-3 py-1 text-xs font-semibold text-slate-950`}
-            >
-              MLW Metric
-            </div>
-            <p className="mt-4 text-sm text-slate-400">{stat.label}</p>
-            <p className="mt-2 text-3xl font-semibold text-white">{stat.value}</p>
-          </div>
+          <StatCard key={stat.label} {...stat} />
         ))}
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
-          <h3 className="text-xl font-semibold text-white">Today&apos;s focus</h3>
-          <p className="mt-3 text-slate-300">
-            Continue with your active language path and review pronunciation before the
-            next lesson unlocks.
+      <section>
+        <div className="mb-4">
+          <h2 className="text-[1.55rem] font-semibold tracking-[-0.03em] text-[#17392d]">
+            Continue Learning
+          </h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Jump back into your active language paths.
           </p>
         </div>
-        <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
-          <h3 className="text-xl font-semibold text-white">Community energy</h3>
-          <p className="mt-3 text-slate-300">
-            Learners across MLW are progressing this week. Keep your streak alive and
-            climb the leaderboard.
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {languages.map((language) => (
+            <LanguageCard key={language.name} {...language} />
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-4">
+          <h2 className="text-[1.55rem] font-semibold tracking-[-0.03em] text-[#17392d]">
+            Recent Lessons
+          </h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Pick up from your latest lesson activity.
           </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {lessons.map((lesson) => (
+            <LessonCard key={lesson.title} {...lesson} />
+          ))}
         </div>
       </section>
     </div>

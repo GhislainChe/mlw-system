@@ -1,22 +1,17 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+
+import { logout } from '../utils/auth';
 
 const menuItems = [
   { label: 'Dashboard', to: '/dashboard' },
   { label: 'Languages', to: '/languages' },
   { label: 'Lessons', to: '/lessons' },
-  { label: 'Learn', to: '/learn' },
+  { label: 'Learn', to: '/lessons' },
   { label: 'Leaderboard', to: '/leaderboard' },
   { label: 'Profile', to: '/dashboard' },
 ];
 
 export default function Sidebar() {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem('mlw_token');
-    navigate('/login');
-  };
-
   return (
     <aside className="flex min-h-full flex-col rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-2xl shadow-slate-950/40 backdrop-blur">
       <div className="mb-10 flex items-center gap-3">
@@ -52,7 +47,7 @@ export default function Sidebar() {
 
       <button
         type="button"
-        onClick={handleLogout}
+        onClick={logout}
         className="mt-6 rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-left text-sm font-medium text-rose-200 transition hover:bg-rose-500/20"
       >
         Logout

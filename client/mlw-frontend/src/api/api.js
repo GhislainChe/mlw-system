@@ -1,20 +1,21 @@
-import axios from 'axios';
+const API_URL = 'http://localhost:5000/api';
 
-const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+export async function registerUser(data) {
+  const res = await fetch(`${API_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('mlw_token');
+  return res.json();
+}
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+export async function loginUser(data) {
+  const res = await fetch(`${API_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
 
-  return config;
-});
-
-export default api;
+  return res.json();
+}

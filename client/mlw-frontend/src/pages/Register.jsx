@@ -1,6 +1,65 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { registerUser } from '../api/api';
 
 export default function Register() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    full_name: '',
+    email: '',
+    password: '',
+    phone: '',
+    language_interest: '',
+    confirm_password: '',
+  });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (formData.password !== formData.confirm_password) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const data = await registerUser({
+        full_name: formData.full_name,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (data.success || data.message === 'User registered successfully.') {
+        setSuccess('Registration successful. Redirecting to login...');
+        setTimeout(() => {
+          navigate('/login');
+        }, 1200);
+        return;
+      }
+
+      setError(data.message || 'Registration failed. Please try again.');
+    } catch (submitError) {
+      setError('Unable to register right now. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#fcfcf8] text-slate-900">
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
@@ -91,11 +150,14 @@ export default function Register() {
               </p>
             </div>
 
-            <form className="mt-6 space-y-4">
+            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <label className="block">
                 <span className="mb-2 block text-sm font-medium text-slate-700">Full name</span>
                 <input
                   type="text"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleChange}
                   placeholder="Your full name"
                   className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
                 />
@@ -105,6 +167,9 @@ export default function Register() {
                 <span className="mb-2 block text-sm font-medium text-slate-700">Email</span>
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   placeholder="you@example.com"
                   className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
                 />
@@ -115,6 +180,9 @@ export default function Register() {
                   <span className="mb-2 block text-sm font-medium text-slate-700">Phone number</span>
                   <input
                     type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
                     placeholder="+237"
                     className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
                   />
@@ -122,7 +190,12 @@ export default function Register() {
 
                 <label className="block">
                   <span className="mb-2 block text-sm font-medium text-slate-700">Language interest</span>
-                  <select className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500">
+                  <select
+                    name="language_interest"
+                    value={formData.language_interest}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500"
+                  >
                     <option>Choose a language</option>
                     <option>Ghomala</option>
                     <option>Yemba</option>
@@ -138,6 +211,9 @@ export default function Register() {
                 <span className="mb-2 block text-sm font-medium text-slate-700">Password</span>
                 <input
                   type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   placeholder="Create a secure password"
                   className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
                 />
@@ -147,16 +223,32 @@ export default function Register() {
                 <span className="mb-2 block text-sm font-medium text-slate-700">Confirm password</span>
                 <input
                   type="password"
+                  name="confirm_password"
+                  value={formData.confirm_password}
+                  onChange={handleChange}
                   placeholder="Confirm your password"
                   className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
                 />
               </label>
 
+              {error ? (
+                <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                  {error}
+                </p>
+              ) : null}
+
+              {success ? (
+                <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                  {success}
+                </p>
+              ) : null}
+
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="w-full rounded-2xl bg-emerald-600 px-4 py-3 font-semibold text-white transition hover:bg-emerald-700"
               >
-                Create account
+                {isSubmitting ? 'Creating account...' : 'Create account'}
               </button>
             </form>
 
