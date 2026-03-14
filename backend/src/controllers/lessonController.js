@@ -5,7 +5,7 @@ const getLessonsByLanguage = async (req, res) => {
     const { languageId } = req.params;
 
     const [lessons] = await db.execute(
-      'SELECT * FROM lessons WHERE language_id = ? ORDER BY id ASC',
+      'SELECT * FROM lessons WHERE language_id = ? ORDER BY order_number ASC',
       [languageId]
     );
 
