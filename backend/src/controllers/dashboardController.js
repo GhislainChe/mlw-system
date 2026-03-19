@@ -10,24 +10,31 @@ const getDashboardStats = async (req, res) => {
     );
 
     const [pointsRows] = await db.execute(
-      'SELECT IFNULL(SUM(points), 0) AS points FROM progress WHERE user_id = ?',
+      `SELECT IFNULL(SUM(points), 0) AS points
+       FROM progress
+       WHERE user_id = ? AND points_awarded = 1`,
       [userId]
     );
 
     const [completedRows] = await db.execute(
-      'SELECT COUNT(*) AS completed FROM progress WHERE user_id = ? AND completed = 1',
+      `SELECT COUNT(*) AS completed
+       FROM progress
+       WHERE user_id = ? AND completed = 1`,
       [userId]
     );
 
     const [rankRows] = await db.execute(
       `SELECT COUNT(*) + 1 AS user_rank
        FROM (
-         SELECT user_id, SUM(points) AS total_points
+         SELECT user_id, IFNULL(SUM(points), 0) AS total_points
          FROM progress
+         WHERE points_awarded = 1
          GROUP BY user_id
        ) leaderboard
        WHERE total_points > (
-         SELECT IFNULL(SUM(points), 0) FROM progress WHERE user_id = ?
+         SELECT IFNULL(SUM(points), 0)
+         FROM progress
+         WHERE user_id = ? AND points_awarded = 1
        )`,
       [userId]
     );
@@ -56,11 +63,12 @@ const getRecentLessons = async (req, res) => {
           lessons.title,
           lessons.language_id,
           progress.completed,
-          progress.points
+          progress.points,
+          progress.progress_percent
        FROM progress
        JOIN lessons ON lessons.id = progress.lesson_id
        WHERE progress.user_id = ?
-       ORDER BY progress.completed_at DESC
+       ORDER BY progress.updated_at DESC
        LIMIT 5`,
       [userId]
     );
