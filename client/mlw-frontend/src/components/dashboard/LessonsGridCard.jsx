@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 
 export default function LessonsGridCard({ lesson, index }) {
   const navigate = useNavigate();
-  const isCompleted = Number(lesson.completed) === 1;
+  const progressPercent =
+    Number(lesson.completed) === 1 ? 100 : Math.max(0, Number(lesson.progress_percent) || 0);
+  const isCompleted = progressPercent === 100;
   const isPro = Number(lesson.is_pro) === 1;
 
   const getIcon = () => {
@@ -57,9 +59,18 @@ export default function LessonsGridCard({ lesson, index }) {
       </div>
 
       <div className="mt-5 flex items-center justify-between gap-3">
-        <p className="text-sm text-slate-600">
-          {lesson.points ? `${lesson.points} points reward` : 'Continue your learning path.'}
-        </p>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-3 text-sm text-slate-600">
+            <span>{isCompleted ? 'Completed' : 'Progress'}</span>
+            <span>{progressPercent}%</span>
+          </div>
+          <div className="mt-2 h-2 w-full rounded-full bg-slate-200">
+            <div
+              className="h-2 rounded-full bg-emerald-600 transition duration-200"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
         <Link
           to={`/lesson/${lesson.id}`}
           onClick={(event) => {

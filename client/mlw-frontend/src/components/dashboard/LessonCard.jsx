@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 
 export default function LessonCard({ lesson }) {
   const navigate = useNavigate();
-  const isCompleted = Number(lesson.completed) === 1;
+  const progressPercent =
+    Number(lesson.completed) === 1 ? 100 : Math.max(0, Number(lesson.progress_percent) || 0);
+  const isCompleted = progressPercent === 100;
 
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition duration-200 hover:shadow-md">
@@ -29,9 +31,18 @@ export default function LessonCard({ lesson }) {
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3">
-        <p className="text-sm text-slate-600">
-          {isCompleted ? 'Completed successfully. Review anytime.' : 'Continue where you left off.'}
-        </p>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-3 text-sm text-slate-600">
+            <span>{isCompleted ? 'Completed successfully.' : 'Continue where you left off.'}</span>
+            <span>{progressPercent}%</span>
+          </div>
+          <div className="mt-2 h-2 w-full rounded-full bg-slate-200">
+            <div
+              className="h-2 rounded-full bg-emerald-600 transition duration-200"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
         <button
           type="button"
           onClick={() => navigate(`/lesson/${lesson.id}`)}

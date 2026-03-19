@@ -17,16 +17,32 @@ const markLessonCompleted = async (req, res) => {
       normalizedProgressPercent === 100 ||
       (!Object.prototype.hasOwnProperty.call(req.body, 'completed') &&
         normalizedProgressPercent === null);
-    const pointsValue = Math.max(0, Number(req.body.points) || 0);
 
     if (!lessonId) {
       return res.status(400).json({
         success: false,
-        message: 'lesson_id is required.',
+        message: 'lessonId is required',
       });
     }
 
-    const [existingRows] = await db.execute(
+    const [lessonRows] = await db.execute(
+      `SELECT IFNULL(points, 10) AS lesson_points
+       FROM lessons
+       WHERE id = ?
+       LIMIT 1`,
+      [lessonId]
+    );
+
+    if (!lessonRows.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'Lesson not found',
+      });
+    }
+
+    const pointsValue = Math.max(0, Number(lessonRows[0].lesson_points) || 10);
+
+    let [existingRows] = await db.execute(
       `SELECT id, points, completed, progress_percent, points_awarded
        FROM progress
        WHERE user_id = ? AND lesson_id = ?
@@ -35,10 +51,6 @@ const markLessonCompleted = async (req, res) => {
     );
 
     if (!existingRows.length) {
-      const progressPercent = shouldComplete ? 100 : normalizedProgressPercent || 0;
-      const completed = shouldComplete ? 1 : 0;
-      const pointsAwarded = shouldComplete && pointsValue > 0 ? 1 : 0;
-
       await db.execute(
         `INSERT INTO progress (
           user_id,
@@ -52,20 +64,21 @@ const markLessonCompleted = async (req, res) => {
         [
           userId,
           lessonId,
-          progressPercent,
-          completed,
-          pointsAwarded ? pointsValue : 0,
-          pointsAwarded,
-          completed ? new Date() : null,
+          normalizedProgressPercent || 0,
+          0,
+          0,
+          0,
+          null,
         ]
       );
 
-      return res.status(201).json({
-        success: true,
-        message: completed
-          ? 'Lesson marked as completed'
-          : 'Lesson progress saved successfully',
-      });
+      [existingRows] = await db.execute(
+        `SELECT id, points, completed, progress_percent, points_awarded
+         FROM progress
+         WHERE user_id = ? AND lesson_id = ?
+         LIMIT 1`,
+        [userId, lessonId]
+      );
     }
 
     const existingProgress = existingRows[0];
@@ -74,7 +87,7 @@ const markLessonCompleted = async (req, res) => {
       if (Number(existingProgress.completed) === 1) {
         return res.status(200).json({
           success: true,
-          message: 'Lesson was already completed',
+          message: 'Progress updated',
         });
       }
 
@@ -99,7 +112,7 @@ const markLessonCompleted = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: 'Lesson marked as completed',
+        message: 'Progress updated',
       });
     }
 
@@ -117,13 +130,12 @@ const markLessonCompleted = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Lesson progress updated successfully',
+      message: 'Progress updated',
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Failed to mark lesson as completed.',
-      error: error.message,
+      message: 'Failed to update progress',
     });
   }
 };

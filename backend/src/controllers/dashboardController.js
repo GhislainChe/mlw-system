@@ -10,9 +10,11 @@ const getDashboardStats = async (req, res) => {
     );
 
     const [pointsRows] = await db.execute(
-      `SELECT IFNULL(SUM(points), 0) AS points
-       FROM progress
-       WHERE user_id = ? AND points_awarded = 1`,
+      `SELECT IFNULL(SUM(IFNULL(lessons.points, 10)), 0) AS points
+       FROM lessons
+       JOIN progress ON lessons.id = progress.lesson_id
+       WHERE progress.user_id = ?
+         AND progress.points_awarded = 1`,
       [userId]
     );
 
@@ -26,15 +28,18 @@ const getDashboardStats = async (req, res) => {
     const [rankRows] = await db.execute(
       `SELECT COUNT(*) + 1 AS user_rank
        FROM (
-         SELECT user_id, IFNULL(SUM(points), 0) AS total_points
+         SELECT progress.user_id, IFNULL(SUM(IFNULL(lessons.points, 10)), 0) AS total_points
          FROM progress
-         WHERE points_awarded = 1
-         GROUP BY user_id
+         JOIN lessons ON lessons.id = progress.lesson_id
+         WHERE progress.points_awarded = 1
+         GROUP BY progress.user_id
        ) leaderboard
        WHERE total_points > (
-         SELECT IFNULL(SUM(points), 0)
-         FROM progress
-         WHERE user_id = ? AND points_awarded = 1
+         SELECT IFNULL(SUM(IFNULL(lessons.points, 10)), 0)
+         FROM lessons
+         JOIN progress ON lessons.id = progress.lesson_id
+         WHERE progress.user_id = ?
+           AND progress.points_awarded = 1
        )`,
       [userId]
     );
@@ -59,12 +64,10 @@ const getRecentLessons = async (req, res) => {
 
     const [lessons] = await db.execute(
       `SELECT
-          lessons.id,
-          lessons.title,
-          lessons.language_id,
-          progress.completed,
+          lessons.*,
           progress.points,
-          progress.progress_percent
+          progress.progress_percent,
+          progress.updated_at
        FROM progress
        JOIN lessons ON lessons.id = progress.lesson_id
        WHERE progress.user_id = ?

@@ -15,10 +15,42 @@ export default function Lessons() {
 
   useEffect(() => {
     const fetchPageData = async () => {
+      const token = localStorage.getItem('token');
+
       if (languageId) {
         try {
-          const res = await axios.get(`http://localhost:5000/api/lessons/${languageId}`);
-          setLessons(res.data.lessons || res.data || []);
+          const [lessonsRes, progressRes] = await Promise.all([
+            axios.get(`http://localhost:5000/api/lessons/${languageId}`),
+            token
+              ? axios.get('http://localhost:5000/api/progress', {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                })
+              : Promise.resolve({ data: { progress: [] } }),
+          ]);
+
+          const lessonRows = lessonsRes.data.lessons || lessonsRes.data || [];
+          const progressRows = progressRes.data.progress || progressRes.data || [];
+          const progressByLessonId = new Map(
+            progressRows.map((item) => [Number(item.lesson_id), item])
+          );
+
+          setLessons(
+            lessonRows.map((lesson) => {
+              const progress = progressByLessonId.get(Number(lesson.id));
+              const progressPercent =
+                progress && progress.progress_percent !== undefined
+                  ? Number(progress.progress_percent) || 0
+                  : 0;
+
+              return {
+                ...lesson,
+                completed: progress ? Number(progress.completed) : 0,
+                progress_percent: Number(progress.completed) === 1 ? 100 : progressPercent,
+              };
+            })
+          );
         } catch (error) {
           console.error('Failed to fetch lessons', error);
         }
@@ -36,8 +68,6 @@ export default function Lessons() {
       }
 
       try {
-        const token = localStorage.getItem('token');
-
         if (!token) {
           setRecentProgress(null);
           return;
