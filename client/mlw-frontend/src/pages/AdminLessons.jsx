@@ -544,6 +544,22 @@ export default function AdminLessons() {
             Add Lesson
           </button>
         </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-slate-500">
+          <span className="rounded-full bg-[#f3f7f4] px-3 py-1.5 font-medium text-[#17392d]">
+            {filteredLessons.length} lesson{filteredLessons.length === 1 ? '' : 's'}
+          </span>
+          {selectedLanguage !== 'all' ? (
+            <span className="rounded-full bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700">
+              Filtered by language
+            </span>
+          ) : null}
+          {searchQuery.trim() ? (
+            <span className="rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-600">
+              Search: "{searchQuery.trim()}"
+            </span>
+          ) : null}
+        </div>
       </section>
 
       {notice ? (
@@ -561,7 +577,7 @@ export default function AdminLessons() {
       {filteredLessons.length ? (
         <>
           <section className="hidden overflow-hidden rounded-[1.8rem] border border-slate-200 bg-white shadow-sm xl:block">
-            <div className="grid grid-cols-[90px_1.35fr_180px_90px_90px_1.6fr_180px] gap-4 border-b border-slate-200 bg-[#f8fbf8] px-5 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            <div className="grid grid-cols-[80px_minmax(0,1.2fr)_160px_90px_100px_minmax(0,1.55fr)_170px] gap-4 border-b border-slate-200 bg-[#f8fbf8] px-5 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
               <span>Order</span>
               <span>Title</span>
               <span>Language</span>
@@ -575,20 +591,23 @@ export default function AdminLessons() {
               {filteredLessons.map((lesson) => (
                 <div
                   key={lesson.id}
-                  className="grid grid-cols-[90px_1.35fr_180px_90px_90px_1.6fr_180px] gap-4 px-5 py-4"
+                  className="grid grid-cols-[80px_minmax(0,1.2fr)_160px_90px_100px_minmax(0,1.55fr)_170px] items-start gap-4 px-5 py-4"
                 >
-                  <div className="text-sm font-semibold text-[#17392d]">
+                  <div className="pt-1 text-sm font-semibold text-[#17392d]">
                     {lesson.order_number}
                   </div>
-                  <div>
-                    <p className="text-base font-semibold text-[#17392d]">{lesson.title}</p>
+                  <div className="min-w-0">
+                    <p className="truncate text-base font-semibold text-[#17392d]">{lesson.title}</p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-500">
+                      Lesson record
+                    </p>
                   </div>
-                  <div className="text-sm text-slate-600">{lesson.language_name}</div>
-                  <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#17392d]">
+                  <div className="pt-1 text-sm text-slate-600">{lesson.language_name}</div>
+                  <div className="inline-flex items-center gap-1.5 pt-1 text-sm font-semibold text-[#17392d]">
                     <Star className="h-3.5 w-3.5 text-amber-500" />
                     {lesson.points}
                   </div>
-                  <div>
+                  <div className="pt-0.5">
                     <span
                       className={[
                         'inline-flex rounded-full px-3 py-1 text-xs font-semibold',
@@ -600,10 +619,19 @@ export default function AdminLessons() {
                       {Number(lesson.is_pro) === 1 ? 'Pro' : 'Free'}
                     </span>
                   </div>
-                  <p className="text-sm leading-6 text-slate-600">
-                    {previewContent(lesson.content)}
-                  </p>
-                  <div className="flex items-center gap-2">
+                  <div className="min-w-0">
+                    <p
+                      className="overflow-hidden text-sm leading-6 text-slate-600"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                    >
+                      {previewContent(lesson.content)}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-end gap-2">
                     <button
                       type="button"
                       onClick={() => openEditModal(lesson)}
@@ -633,7 +661,7 @@ export default function AdminLessons() {
                 className="rounded-[1.7rem] border border-slate-200 bg-white p-5 shadow-sm"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-slate-500">Lesson {lesson.order_number}</p>
                     <h3 className="mt-1 text-lg font-semibold text-[#17392d]">{lesson.title}</h3>
                     <p className="mt-1 text-sm text-slate-600">{lesson.language_name}</p>
@@ -650,14 +678,25 @@ export default function AdminLessons() {
                   </span>
                 </div>
 
-                <p className="mt-4 text-sm leading-6 text-slate-600">
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl bg-[#f8fbf8] px-3 py-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Points</p>
+                    <p className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-[#17392d]">
+                      <Star className="h-3.5 w-3.5 text-amber-500" />
+                      {lesson.points}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl bg-[#f8fbf8] px-3 py-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Access</p>
+                    <p className="mt-1 text-sm font-semibold text-[#17392d]">
+                      {Number(lesson.is_pro) === 1 ? 'Pro Lesson' : 'Free Lesson'}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="mt-4 rounded-2xl bg-[#fbfcfa] px-4 py-3 text-sm leading-6 text-slate-600">
                   {previewContent(lesson.content)}
                 </p>
-
-                <div className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#17392d]">
-                  <Star className="h-3.5 w-3.5 text-amber-500" />
-                  {lesson.points} points
-                </div>
 
                 <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                   <button
