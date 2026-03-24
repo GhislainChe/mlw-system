@@ -29,6 +29,7 @@ const registerUser = async (req, res) => {
     );
 
     return res.status(201).json({
+      success: true,
       message: 'User registered successfully.',
       user: {
         id: result.insertId,
@@ -62,14 +63,14 @@ const loginUser = async (req, res) => {
     );
 
     if (users.length === 0) {
-      return res.status(401).json({ message: 'Invalid email or password.' });
+      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
     const user = users[0];
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid email or password.' });
+      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
     const token = await jwt.sign(
@@ -79,6 +80,7 @@ const loginUser = async (req, res) => {
     );
 
     return res.status(200).json({
+      success: true,
       message: 'Login successful.',
       token,
       user: {
@@ -91,6 +93,7 @@ const loginUser = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
+      success: false,
       message: 'Failed to log in user.',
       error: error.message,
     });

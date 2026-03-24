@@ -1,5 +1,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
+import AdminLayout from '../layouts/AdminLayout';
+import AdminDashboard from '../pages/AdminDashboard';
+import AdminLanguages from '../pages/AdminLanguages';
+import AdminLessons from '../pages/AdminLessons';
+import AdminUsers from '../pages/AdminUsers';
 import DashboardLayout from '../layouts/DashboardLayout';
 import About from '../pages/About';
 import Dashboard from '../pages/Dashboard';
@@ -11,6 +16,7 @@ import Login from '../pages/Login';
 import Profile from '../pages/Profile';
 import Register from '../pages/Register';
 import Settings from '../pages/Settings';
+import AdminRoute from './AdminRoute';
 import ProtectedRoute from './ProtectedRoute';
 
 export default function AppRoutes() {
@@ -31,6 +37,15 @@ export default function AppRoutes() {
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
+          </Route>
+        </Route>
+
+        <Route element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/languages" element={<AdminLanguages />} />
+            <Route path="/admin/lessons" element={<AdminLessons />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
           </Route>
         </Route>
 

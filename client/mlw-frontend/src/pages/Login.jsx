@@ -28,9 +28,13 @@ export default function Login() {
     try {
       const data = await loginUser(formData);
 
-      if (data.token) {
+      if (data.success && data.token) {
         localStorage.setItem('token', data.token);
-        navigate('/dashboard');
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+
+        navigate(data.user?.role === 'admin' ? '/admin/dashboard' : '/dashboard');
         return;
       }
 
