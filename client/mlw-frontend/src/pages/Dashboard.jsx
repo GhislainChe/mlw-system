@@ -1,10 +1,13 @@
 import axios from 'axios';
-import { ArrowRight, BookOpen, Flame, Star, Trophy } from 'lucide-react';
+import { ArrowRight, BookOpen, CircleDashed, Flame, Star, Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import LessonCard from '../components/dashboard/LessonCard';
 import StatCard from '../components/dashboard/StatCard';
+import EmptyStateCard from '../components/ui/EmptyStateCard';
+import ProgressBar from '../components/ui/ProgressBar';
+import SectionHeader from '../components/ui/SectionHeader';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -97,7 +100,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat) => (
           <StatCard key={stat.label} {...stat} />
@@ -111,17 +114,14 @@ export default function Dashboard() {
       ) : null}
 
       <section>
-        <div className="mb-4">
-          <h2 className="text-[1.55rem] font-semibold tracking-[-0.03em] text-[#17392d]">
-            Continue Learning
-          </h2>
-          <p className="mt-1 text-sm text-slate-600">
-            Jump back into the lesson you were studying most recently.
-          </p>
-        </div>
+        <SectionHeader
+          title="Continue Learning"
+          subtitle="Jump back into the lesson you were studying most recently."
+          className="mb-4"
+        />
 
         {continueLesson ? (
-          <div className="rounded-[1.8rem] border border-emerald-100 bg-gradient-to-r from-[#f5fbf7] via-white to-[#eef7f1] p-6 shadow-sm">
+          <div className="rounded-[1.8rem] border border-emerald-100 bg-gradient-to-r from-[#f5fbf7] via-white to-[#eef7f1] p-5 shadow-sm sm:p-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
@@ -146,12 +146,7 @@ export default function Dashboard() {
                     <span>Progress</span>
                     <span>{continueLesson.progress_percent || 0}%</span>
                   </div>
-                  <div className="h-2.5 overflow-hidden rounded-full bg-emerald-100">
-                    <div
-                      className="h-full rounded-full bg-emerald-600 transition-all duration-500 ease-out"
-                      style={{ width: `${continueLesson.progress_percent || 0}%` }}
-                    />
-                  </div>
+                  <ProgressBar value={continueLesson.progress_percent || 0} />
                 </div>
               </div>
 
@@ -166,32 +161,34 @@ export default function Dashboard() {
             </div>
           </div>
         ) : (
-          <div className="rounded-[1.8rem] border border-dashed border-[#d5e2d7] bg-[#f8fbf8] px-6 py-8 text-center shadow-sm">
-            <h3 className="text-lg font-semibold text-[#17392d]">
-              You have no lesson in progress yet.
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Start a language path from the lessons page and your next lesson to resume will appear here.
-            </p>
-          </div>
+          <EmptyStateCard
+            icon={CircleDashed}
+            title="You have no lesson in progress yet."
+            description="Start a language path from the lessons page and your next lesson to resume will appear here."
+          />
         )}
       </section>
 
       <section>
-        <div className="mb-4">
-          <h2 className="text-[1.55rem] font-semibold tracking-[-0.03em] text-[#17392d]">
-            Recent Lessons
-          </h2>
-          <p className="mt-1 text-sm text-slate-600">
-            Pick up from your latest lesson activity.
-          </p>
-        </div>
+        <SectionHeader
+          title="Recent Lessons"
+          subtitle="Pick up from your latest lesson activity."
+          className="mb-4"
+        />
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {recentLessons.map((lesson) => (
-            <LessonCard key={lesson.id} lesson={lesson} />
-          ))}
-        </div>
+        {recentLessons.length ? (
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            {recentLessons.map((lesson) => (
+              <LessonCard key={lesson.lesson_id} lesson={lesson} />
+            ))}
+          </div>
+        ) : (
+          <EmptyStateCard
+            icon={CircleDashed}
+            title="No recent lessons yet"
+            description="Your latest lesson activity will show here once you start working through a language path."
+          />
+        )}
       </section>
     </div>
   );

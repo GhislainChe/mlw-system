@@ -2,6 +2,9 @@ import axios from 'axios';
 import { Award, Medal, Star, Trophy } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
+import EmptyStateCard from '../components/ui/EmptyStateCard';
+import SectionHeader from '../components/ui/SectionHeader';
+
 function getCurrentUserId() {
   try {
     const token = localStorage.getItem('token');
@@ -91,15 +94,11 @@ export default function Leaderboard() {
       ) : null}
 
       {leaderboard.length === 0 && !error ? (
-        <div className="rounded-[1.8rem] border border-dashed border-[#d5e2d7] bg-[#f8fbf8] px-6 py-8 text-center shadow-sm">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-            <Award className="h-5 w-5" />
-          </div>
-          <h3 className="mt-4 text-lg font-semibold text-[#17392d]">No leaderboard data yet</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Once learners start completing lessons and earning points, rankings will appear here.
-          </p>
-        </div>
+        <EmptyStateCard
+          icon={Award}
+          title="No leaderboard data yet"
+          description="Once learners start completing lessons and earning points, rankings will appear here."
+        />
       ) : null}
 
       {leaderboard.length > 0 ? (
@@ -144,14 +143,10 @@ export default function Leaderboard() {
           </section>
 
           <section className="space-y-4">
-            <div>
-              <h3 className="text-[1.28rem] font-semibold tracking-[-0.03em] text-[#17392d]">
-                Top Learners
-              </h3>
-              <p className="mt-1 text-sm text-slate-600">
-                Spotlight on the current top three learners.
-              </p>
-            </div>
+            <SectionHeader
+              title="Top Learners"
+              subtitle="Spotlight on the current top three learners."
+            />
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <SpotlightCard leader={topThree[0]} tone="bg-[#17392d]" />
@@ -161,14 +156,10 @@ export default function Leaderboard() {
           </section>
 
           <section className="space-y-4">
-            <div>
-              <h3 className="text-[1.28rem] font-semibold tracking-[-0.03em] text-[#17392d]">
-                Full Rankings
-              </h3>
-              <p className="mt-1 text-sm text-slate-600">
-                Points are ranked first, then completed lessons.
-              </p>
-            </div>
+            <SectionHeader
+              title="Full Rankings"
+              subtitle="Points are ranked first, then completed lessons."
+            />
 
             <div className="overflow-hidden rounded-[1.8rem] border border-slate-200 bg-white shadow-sm">
               <div className="hidden grid-cols-[90px_minmax(0,1fr)_140px_160px] gap-4 border-b border-slate-200 bg-[#f8fbf8] px-5 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 md:grid">

@@ -1,6 +1,8 @@
 import { BookOpen, PlayCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import ProgressBar from '../ui/ProgressBar';
+
 export default function LessonCard({ lesson }) {
   const navigate = useNavigate();
   const progressPercent =
@@ -8,7 +10,7 @@ export default function LessonCard({ lesson }) {
   const isCompleted = progressPercent === 100;
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition duration-200 hover:shadow-md">
+    <article className="rounded-[1.6rem] border border-slate-200 bg-white p-4 shadow-sm transition duration-200 hover:shadow-md sm:p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#eef4f0] text-[#2d6c49]">
@@ -41,12 +43,7 @@ export default function LessonCard({ lesson }) {
             <span>{isCompleted ? 'Completed' : 'Progress'}</span>
             <span>{progressPercent}%</span>
           </div>
-          <div className="mt-2 h-2 w-full rounded-full bg-slate-200">
-            <div
-              className="h-2 rounded-full bg-emerald-600 transition-all duration-500 ease-out"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
+          <ProgressBar value={progressPercent} trackClassName="mt-2 bg-slate-200" className="h-2 rounded-full" />
         </div>
         <button
           type="button"

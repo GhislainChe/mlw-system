@@ -1,6 +1,8 @@
 import { BookOpen, CheckCircle, Lock, PlayCircle, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import ProgressBar from '../ui/ProgressBar';
+
 export default function LessonsGridCard({ lesson, index }) {
   const progressPercent =
     Number(lesson.completed) === 1 ? 100 : Math.max(0, Number(lesson.progress_percent) || 0);
@@ -33,7 +35,7 @@ export default function LessonsGridCard({ lesson, index }) {
   };
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:shadow-md sm:p-6">
+    <article className="rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:shadow-md sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-slate-500">Lesson {lessonNumber}</p>
@@ -71,15 +73,12 @@ export default function LessonsGridCard({ lesson, index }) {
             <span>Progress</span>
             <span className="font-medium text-[#17392d]">{progressPercent}%</span>
           </div>
-          <div className="mt-2 h-2 w-full rounded-full bg-slate-200">
-            <div
-              className={[
-                'h-2 rounded-full transition-all duration-500 ease-out',
-                isCompleted ? 'bg-emerald-600' : isStarted ? 'bg-sky-500' : 'bg-slate-300',
-              ].join(' ')}
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
+          <ProgressBar
+            value={progressPercent}
+            trackClassName="mt-2 bg-slate-200"
+            barClassName={isCompleted ? 'bg-emerald-600' : isStarted ? 'bg-sky-500' : 'bg-slate-300'}
+            className="h-2 rounded-full"
+          />
         </div>
       </div>
 

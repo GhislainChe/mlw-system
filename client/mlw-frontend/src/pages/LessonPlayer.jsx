@@ -12,6 +12,8 @@ import {
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import ProgressBar from '../components/ui/ProgressBar';
+
 export default function LessonPlayer() {
   const navigate = useNavigate();
   const { lessonId } = useParams();
@@ -175,7 +177,7 @@ export default function LessonPlayer() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-5">
       {toast ? (
         <div className="fixed right-5 top-5 z-50 rounded-2xl border border-emerald-200 bg-white px-4 py-3 shadow-lg">
           <div className="flex items-center gap-3 text-sm font-medium text-emerald-700">
@@ -221,7 +223,7 @@ export default function LessonPlayer() {
         </div>
       </div>
 
-      <section className="rounded-[2rem] border border-[#dce6de] bg-white p-6 shadow-sm sm:p-7">
+      <section className="rounded-[1.8rem] border border-[#dce6de] bg-white p-6 shadow-sm sm:p-7">
         <div className="space-y-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -252,17 +254,12 @@ export default function LessonPlayer() {
               <span>Progress</span>
               <span className="font-semibold text-[#17392d]">{progressPercent}%</span>
             </div>
-            <div className="mt-3 h-2.5 w-full rounded-full bg-slate-200">
-              <div
-                className="h-2.5 rounded-full bg-emerald-600 transition-all duration-500 ease-out"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
+            <ProgressBar value={progressPercent} trackClassName="mt-3 bg-slate-200" />
           </div>
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
+      <section className="rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
             <BookText className="h-5 w-5" />
@@ -293,7 +290,7 @@ export default function LessonPlayer() {
         </div>
       </section>
 
-      <section className="rounded-[1.7rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-[1.8rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-base font-semibold text-[#17392d]">Lesson Actions</h3>

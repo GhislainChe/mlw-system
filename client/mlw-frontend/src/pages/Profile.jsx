@@ -10,6 +10,9 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
+import EmptyStateCard from '../components/ui/EmptyStateCard';
+import ProgressBar from '../components/ui/ProgressBar';
+
 function MetricCard({ icon: Icon, label, value, tone }) {
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -217,19 +220,17 @@ export default function Profile() {
                     </span>
                   </div>
 
-                  <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-emerald-100">
-                    <div
-                      className="h-full rounded-full bg-emerald-600 transition-all duration-500 ease-out"
-                      style={{ width: `${language.progress_percent}%` }}
-                    />
-                  </div>
+                  <ProgressBar value={language.progress_percent} className="mt-3 h-2.5 rounded-full" />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="mt-5 rounded-[1.4rem] border border-dashed border-[#d8e4d9] bg-[#f8fbf8] px-4 py-5 text-sm text-slate-600">
-              Start a lesson path to see language progress here.
-            </div>
+            <EmptyStateCard
+              icon={Languages}
+              title="No language progress yet"
+              description="Start a lesson path to see language progress here."
+              className="mt-5"
+            />
           )}
         </article>
       </section>
@@ -272,12 +273,7 @@ export default function Profile() {
                         <span>Progress</span>
                         <span>{displayProgress}%</span>
                       </div>
-                      <div className="h-2.5 overflow-hidden rounded-full bg-emerald-100">
-                        <div
-                          className="h-full rounded-full bg-emerald-600 transition-all duration-500 ease-out"
-                          style={{ width: `${displayProgress}%` }}
-                        />
-                      </div>
+                      <ProgressBar value={displayProgress} className="h-2.5 rounded-full" />
                     </div>
                   </div>
                 </div>
@@ -285,9 +281,12 @@ export default function Profile() {
             })}
           </div>
         ) : (
-          <div className="mt-5 rounded-[1.4rem] border border-dashed border-[#d8e4d9] bg-[#f8fbf8] px-4 py-5 text-sm text-slate-600">
-            Your latest lesson activity will appear here once you begin learning.
-          </div>
+          <EmptyStateCard
+            icon={Activity}
+            title="No recent activity yet"
+            description="Your latest lesson activity will appear here once you begin learning."
+            className="mt-5"
+          />
         )}
       </section>
     </div>

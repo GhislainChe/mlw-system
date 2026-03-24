@@ -1,17 +1,13 @@
 import axios from "axios";
-import {
-  ArrowLeft,
-  ArrowRight,
-  BookOpen,
-  CircleDashed,
-  Languages,
-  Sparkles,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, CircleDashed, Languages, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import LanguagesGridCard from "../components/dashboard/LanguagesGridCard";
 import LessonsGridCard from "../components/dashboard/LessonsGridCard";
+import EmptyStateCard from "../components/ui/EmptyStateCard";
+import ProgressBar from "../components/ui/ProgressBar";
+import SectionHeader from "../components/ui/SectionHeader";
 
 export default function Lessons() {
   const navigate = useNavigate();
@@ -182,7 +178,7 @@ export default function Lessons() {
 
   if (!languageId) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-6">
         <section className="rounded-[1.8rem] border border-[#dce6de] bg-white px-6 py-6 shadow-sm sm:px-7">
           <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">
             Lessons
@@ -197,17 +193,13 @@ export default function Lessons() {
         </section>
 
         <section className="space-y-4">
-          <div>
-            <h3 className="text-[1.28rem] font-semibold tracking-[-0.03em] text-[#17392d]">
-              Continue Learning
-            </h3>
-            <p className="mt-1 text-sm text-slate-600">
-              Return to the lesson you last worked on.
-            </p>
-          </div>
+          <SectionHeader
+            title="Continue Learning"
+            subtitle="Return to the lesson you last worked on."
+          />
 
           {recentProgress ? (
-            <section className="rounded-[1.8rem] border border-emerald-100 bg-gradient-to-r from-[#f5fbf7] via-white to-[#eef7f1] p-6 shadow-sm">
+            <section className="rounded-[1.8rem] border border-emerald-100 bg-gradient-to-r from-[#f5fbf7] via-white to-[#eef7f1] p-5 shadow-sm sm:p-6">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="space-y-4">
                   <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
@@ -229,12 +221,7 @@ export default function Lessons() {
                       <span>Progress</span>
                       <span>{recentProgress.progress_percent}%</span>
                     </div>
-                    <div className="h-2.5 overflow-hidden rounded-full bg-emerald-100">
-                      <div
-                        className="h-full rounded-full bg-emerald-600 transition-all duration-500 ease-out"
-                        style={{ width: `${recentProgress.progress_percent}%` }}
-                      />
-                    </div>
+                    <ProgressBar value={recentProgress.progress_percent} />
                   </div>
                 </div>
 
@@ -249,29 +236,19 @@ export default function Lessons() {
               </div>
             </section>
           ) : (
-            <div className="rounded-[1.8rem] border border-dashed border-[#d5e2d7] bg-[#f8fbf8] px-6 py-8 text-center shadow-sm">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-                <CircleDashed className="h-5 w-5" />
-              </div>
-              <h4 className="mt-4 text-lg font-semibold text-[#17392d]">
-                No recent lesson yet
-              </h4>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Start with a language below and your latest lesson progress will appear here.
-              </p>
-            </div>
+            <EmptyStateCard
+              icon={CircleDashed}
+              title="No recent lesson yet"
+              description="Start with a language below and your latest lesson progress will appear here."
+            />
           )}
         </section>
 
         <section className="space-y-5">
-          <div>
-            <h3 className="text-[1.3rem] font-semibold tracking-[-0.03em] text-[#17392d]">
-              Choose a Language
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Explore all available language paths and begin learning with guided lessons.
-            </p>
-          </div>
+          <SectionHeader
+            title="Choose a Language"
+            subtitle="Explore all available language paths and begin learning with guided lessons."
+          />
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {languages.map((language) => (
@@ -369,29 +346,20 @@ export default function Lessons() {
           <p className="mt-2 text-[1.9rem] font-semibold tracking-[-0.04em] text-[#17392d]">
             {languageSummary.overallPercent}%
           </p>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
-            <div
-              className="h-full rounded-full bg-emerald-600 transition-all duration-500 ease-out"
-              style={{ width: `${languageSummary.overallPercent}%` }}
-            />
-          </div>
+          <ProgressBar
+            value={languageSummary.overallPercent}
+            trackClassName="mt-2 bg-slate-200"
+            className="h-2 rounded-full"
+          />
         </div>
       </section>
 
       <section className="space-y-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">
-              Lessons
-            </p>
-            <h3 className="mt-1 text-[1.35rem] font-semibold tracking-[-0.03em] text-[#17392d]">
-              Follow the lesson path in order
-            </h3>
-          </div>
-          <p className="max-w-xl text-sm leading-6 text-slate-600">
-            Start where you are, continue from saved progress, or review completed lessons.
-          </p>
-        </div>
+        <SectionHeader
+          eyebrow="Lessons"
+          title="Follow the lesson path in order"
+          subtitle="Start where you are, continue from saved progress, or review completed lessons."
+        />
 
         {lessons.length ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -404,17 +372,12 @@ export default function Lessons() {
             ))}
           </div>
         ) : (
-          <div className="rounded-[1.8rem] border border-slate-200 bg-white px-6 py-8 text-center shadow-sm">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <h4 className="mt-4 text-lg font-semibold text-[#17392d]">
-              No lessons available
-            </h4>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              This language does not have lessons yet. Try another language path for now.
-            </p>
-          </div>
+          <EmptyStateCard
+            icon={Sparkles}
+            title="No lessons available"
+            description="This language does not have lessons yet. Try another language path for now."
+            className="border-slate-200 bg-white"
+          />
         )}
       </section>
     </div>

@@ -71,10 +71,12 @@ export default function Settings() {
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           <ReadOnlyField label="Full Name" value={user.full_name} />
           <ReadOnlyField label="Email" value={user.email} />
-          <ReadOnlyField label="Role" value={user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : ''} />
+          <ReadOnlyField
+            label="Role"
+            value={user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : ''}
+          />
         </div>
       </section>
-
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <article className="rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center gap-3">

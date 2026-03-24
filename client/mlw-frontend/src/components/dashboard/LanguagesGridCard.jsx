@@ -18,7 +18,7 @@ export default function LanguagesGridCard({ language }) {
           handleOpen();
         }
       }}
-      className="cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:shadow-md"
+      className="cursor-pointer overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white shadow-sm transition duration-200 hover:shadow-md"
     >
       <div className="h-48 overflow-hidden">
         <img
@@ -31,8 +31,8 @@ export default function LanguagesGridCard({ language }) {
         />
       </div>
 
-      <div className="p-5">
-        <h3 className="text-xl font-semibold text-[#17392d]">{language.name}</h3>
+      <div className="p-5 sm:p-6">
+        <h3 className="text-lg font-semibold text-[#17392d] sm:text-xl">{language.name}</h3>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           {language.description || 'Learn through guided lessons and cultural context.'}
         </p>
