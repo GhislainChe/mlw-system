@@ -4,6 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 
 import EmptyStateCard from '../components/ui/EmptyStateCard';
 import SectionHeader from '../components/ui/SectionHeader';
+import {
+  buildLessonContentPreview,
+  getOrderedLessonSections,
+  getStructuredLessonTemplate,
+  parseLessonContent,
+} from '../utils/lessonContent';
 
 const emptyForm = {
   language_id: '',
@@ -23,6 +29,8 @@ function LessonFormModal({
   onSubmit,
   isSubmitting,
 }) {
+  const parsedPreview = getOrderedLessonSections(parseLessonContent(formData.content));
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#17392d]/35 p-4 backdrop-blur-[2px]">
       <div className="w-full max-w-3xl rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-2xl">
@@ -78,12 +86,19 @@ function LessonFormModal({
 
           <label className="block">
             <span className="mb-2 block text-sm font-medium text-slate-700">Content</span>
+            <p className="mb-2 text-xs leading-5 text-slate-500">
+              Use this structure:
+              {' '}
+              <span className="font-medium text-slate-600">
+                Introduction:, Vocabulary:, Examples:, Note:
+              </span>
+            </p>
             <textarea
               name="content"
               value={formData.content}
               onChange={onChange}
               rows={7}
-              placeholder="Write the lesson content"
+              placeholder={getStructuredLessonTemplate()}
               className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
             />
           </label>
@@ -150,6 +165,40 @@ function LessonFormModal({
             </button>
           </div>
         </form>
+
+        <div className="mt-6 rounded-[1.5rem] border border-[#dce6de] bg-[#f8fbf8] p-5">
+          <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">Lesson Preview</p>
+          <div className="mt-4 space-y-3">
+            {parsedPreview.length ? (
+              parsedPreview.map((section) => (
+                <div
+                  key={section.label}
+                  className={[
+                    'rounded-2xl border px-4 py-4',
+                    section.label === 'Note'
+                      ? 'border-emerald-100 bg-emerald-50/70'
+                      : 'border-slate-200 bg-white',
+                  ].join(' ')}
+                >
+                  <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#17392d]">
+                    {section.label}
+                  </h4>
+                  <div className="mt-3 space-y-2">
+                    {section.items.map((item, index) => (
+                      <p key={`${section.label}-${index}`} className="text-sm leading-6 text-slate-600">
+                        {item}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm leading-6 text-slate-600">
+                Start writing with the structured section headings to preview the lesson layout.
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -318,12 +367,8 @@ export default function AdminLessons() {
   };
 
   const previewContent = (content) => {
-    const segment = (content || '')
-      .split(/[.=]/)
-      .map((part) => part.trim())
-      .find(Boolean);
+    const segment = buildLessonContentPreview(content);
 
-    if (!segment) return 'No lesson content yet.';
     return segment.length > 110 ? `${segment.slice(0, 110)}...` : segment;
   };
 

@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import ProgressBar from '../components/ui/ProgressBar';
+import { getOrderedLessonSections, parseLessonContent } from '../utils/lessonContent';
 
 export default function LessonPlayer() {
   const navigate = useNavigate();
@@ -105,10 +106,7 @@ export default function LessonPlayer() {
 
   const lessonOrder = Number(lesson?.order_number) || 1;
   const isCompleted = progressPercent === 100;
-  const contentSegments = (lesson?.content || '')
-    .split('.')
-    .map((segment) => segment.trim())
-    .filter(Boolean);
+  const contentSections = getOrderedLessonSections(parseLessonContent(lesson?.content || ''));
   const statusLabel = isCompleted
     ? 'Completed'
     : progressPercent > 0
@@ -273,14 +271,57 @@ export default function LessonPlayer() {
         </div>
 
         <div className="mt-5 space-y-3">
-          {contentSegments.length ? (
-            contentSegments.map((segment, idx) => (
-              <div
-                key={`${segment}-${idx}`}
-                className="rounded-2xl border border-[#e1eae2] bg-[#fbfdfb] px-4 py-4 text-[0.98rem] leading-7 text-slate-700"
+          {contentSections.length ? (
+            contentSections.map((section) => (
+              <section
+                key={section.label}
+                className={[
+                  'rounded-2xl border px-4 py-4 sm:px-5',
+                  section.label === 'Note'
+                    ? 'border-emerald-100 bg-emerald-50/70'
+                    : 'border-[#e1eae2] bg-[#fbfdfb]',
+                ].join(' ')}
               >
-                {segment}.
-              </div>
+                <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-[#17392d]">
+                  {section.label}
+                </h3>
+
+                {section.label === 'Vocabulary' ? (
+                  <div className="mt-4 space-y-2">
+                    {section.items.map((item, index) => {
+                      const [term, meaning] = item.split('=').map((part) => part?.trim());
+
+                      return (
+                        <div
+                          key={`${section.label}-${index}`}
+                          className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <span className="font-medium text-[#17392d]">{term || item}</span>
+                          {meaning ? (
+                            <span className="text-sm font-semibold text-emerald-700">{meaning}</span>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="mt-4 space-y-2">
+                    {section.items.map((item, index) => (
+                      <div
+                        key={`${section.label}-${index}`}
+                        className={[
+                          'rounded-2xl px-4 py-3 text-[0.98rem] leading-7 text-slate-700',
+                          section.label === 'Note'
+                            ? 'bg-white/70'
+                            : 'border border-slate-200 bg-white',
+                        ].join(' ')}
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
             ))
           ) : (
             <div className="rounded-2xl border border-[#e1eae2] bg-[#fbfdfb] px-4 py-4 text-[0.98rem] leading-7 text-slate-700">
