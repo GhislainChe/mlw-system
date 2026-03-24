@@ -1,10 +1,10 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { ArrowRight, BookOpen } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { ArrowRight, BookOpen } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 
-import LanguagesGridCard from '../components/dashboard/LanguagesGridCard';
-import LessonsGridCard from '../components/dashboard/LessonsGridCard';
+import LanguagesGridCard from "../components/dashboard/LanguagesGridCard";
+import LessonsGridCard from "../components/dashboard/LessonsGridCard";
 
 export default function Lessons() {
   const navigate = useNavigate();
@@ -15,27 +15,41 @@ export default function Lessons() {
 
   useEffect(() => {
     const fetchPageData = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       if (languageId) {
         try {
-          const [lessonsRes, progressRes] = await Promise.all([
-            axios.get(`http://localhost:5000/api/lessons/language/${languageId}`),
-            token
-              ? axios.get('http://localhost:5000/api/progress', {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                })
-              : Promise.resolve({ data: { progress: [] } }),
-          ]);
+          const lessonsRes = await axios.get(
+            `http://localhost:5000/api/lessons/language/${languageId}`,
+          );
 
           const lessonRows = Array.isArray(lessonsRes.data?.lessons)
             ? lessonsRes.data.lessons
             : [];
-          const progressRows = progressRes.data.progress || progressRes.data || [];
+
+          let progressRows = [];
+
+          if (token) {
+            try {
+              const progressRes = await axios.get(
+                "http://localhost:5000/api/progress",
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                },
+              );
+
+              progressRows =
+                progressRes.data?.progress || progressRes.data || [];
+            } catch (progressError) {
+              console.error("Failed to fetch progress", progressError);
+              progressRows = [];
+            }
+          }
+
           const progressByLessonId = new Map(
-            progressRows.map((item) => [Number(item.lesson_id), item])
+            progressRows.map((item) => [Number(item.lesson_id), item]),
           );
 
           setLessons(
@@ -49,12 +63,14 @@ export default function Lessons() {
               return {
                 ...lesson,
                 completed: progress ? Number(progress.completed) : 0,
-                progress_percent: Number(progress.completed) === 1 ? 100 : progressPercent,
+                progress_percent:
+                  Number(progress?.completed) === 1 ? 100 : progressPercent,
               };
-            })
+            }),
           );
         } catch (error) {
-          console.error('Failed to fetch lessons', error);
+          console.error("Failed to fetch lessons", error);
+          setLessons([]);
         }
 
         return;
@@ -63,10 +79,12 @@ export default function Lessons() {
       setLessons([]);
 
       try {
-        const languageRes = await axios.get('http://localhost:5000/api/languages');
+        const languageRes = await axios.get(
+          "http://localhost:5000/api/languages",
+        );
         setLanguages(languageRes.data.languages || languageRes.data || []);
       } catch (error) {
-        console.error('Failed to fetch languages', error);
+        console.error("Failed to fetch languages", error);
       }
 
       try {
@@ -75,16 +93,19 @@ export default function Lessons() {
           return;
         }
 
-        const progressRes = await axios.get('http://localhost:5000/api/progress/recent', {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const progressRes = await axios.get(
+          "http://localhost:5000/api/progress/recent",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
 
         const data = progressRes.data;
         setRecentProgress(data?.lesson_id ? data : null);
       } catch (error) {
-        console.error('Failed to fetch recent progress', error);
+        console.error("Failed to fetch recent progress", error);
         setRecentProgress(null);
       }
     };
@@ -96,12 +117,15 @@ export default function Lessons() {
     return (
       <div className="space-y-8">
         <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">Lessons</p>
+          <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">
+            Lessons
+          </p>
           <h2 className="mt-2 text-[1.55rem] font-semibold tracking-[-0.03em] text-[#17392d]">
             Continue where you left off
           </h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Pick up your latest lesson or choose a language to explore a new learning path.
+            Pick up your latest lesson or choose a language to explore a new
+            learning path.
           </p>
         </div>
 
@@ -115,7 +139,9 @@ export default function Lessons() {
                 </div>
 
                 <div>
-                  <p className="text-sm font-medium text-emerald-700">{recentProgress.language_name}</p>
+                  <p className="text-sm font-medium text-emerald-700">
+                    {recentProgress.language_name}
+                  </p>
                   <h3 className="mt-1 text-2xl font-semibold tracking-[-0.03em] text-[#17392d]">
                     {recentProgress.lesson_title}
                   </h3>
@@ -153,7 +179,8 @@ export default function Lessons() {
               Choose a Language
             </h3>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Start learning with any available language and move through lessons at your own pace.
+              Start learning with any available language and move through
+              lessons at your own pace.
             </p>
           </div>
 
@@ -170,9 +197,13 @@ export default function Lessons() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">Lessons</p>
+        <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">
+          Lessons
+        </p>
         <h2 className="mt-2 text-[1.55rem] font-semibold tracking-[-0.03em] text-[#17392d]">
-          {languageId ? `Lessons for language ${languageId}` : 'Choose a language to view lessons'}
+          {languageId
+            ? `Lessons for language ${languageId}`
+            : "Choose a language to view lessons"}
         </h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           Browse the lesson path and continue learning one step at a time.
@@ -187,9 +218,12 @@ export default function Lessons() {
         </div>
       ) : (
         <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 text-center shadow-sm">
-          <h3 className="text-lg font-semibold text-[#17392d]">No lessons available</h3>
+          <h3 className="text-lg font-semibold text-[#17392d]">
+            No lessons available
+          </h3>
           <p className="mt-2 text-sm text-slate-600">
-            This language does not have lessons yet. Check back later or choose another language.
+            This language does not have lessons yet. Check back later or choose
+            another language.
           </p>
         </div>
       )}
