@@ -7,6 +7,7 @@ const {
   updateAdminLanguage,
   deleteAdminLanguage,
   getAdminLessons,
+  getAdminUsers,
   getNextLessonOrderNumber,
   createAdminLesson,
   updateAdminLesson,
@@ -22,6 +23,7 @@ router.get('/languages', authenticateToken, requireAdmin, getAdminLanguages);
 router.post('/languages', authenticateToken, requireAdmin, createAdminLanguage);
 router.put('/languages/:languageId', authenticateToken, requireAdmin, updateAdminLanguage);
 router.delete('/languages/:languageId', authenticateToken, requireAdmin, deleteAdminLanguage);
+router.get('/users', authenticateToken, requireAdmin, getAdminUsers);
 router.get('/lessons', authenticateToken, requireAdmin, getAdminLessons);
 router.get('/languages/:languageId/next-order', authenticateToken, requireAdmin, getNextLessonOrderNumber);
 router.post('/lessons', authenticateToken, requireAdmin, createAdminLesson);

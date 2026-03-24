@@ -282,6 +282,29 @@ const getAdminLessons = async (req, res) => {
   }
 };
 
+const getAdminUsers = async (req, res) => {
+  try {
+    const [users] = await pool.query(
+      `
+        SELECT id, full_name, email, role, created_at
+        FROM users
+        ORDER BY created_at DESC
+      `
+    );
+
+    return res.json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to load users right now.',
+      error: error.message,
+    });
+  }
+};
+
 const getNextLessonOrderNumber = async (req, res) => {
   try {
     const { languageId } = req.params;
@@ -481,6 +504,7 @@ module.exports = {
   updateAdminLanguage,
   deleteAdminLanguage,
   getAdminLessons,
+  getAdminUsers,
   getNextLessonOrderNumber,
   createAdminLesson,
   updateAdminLesson,
