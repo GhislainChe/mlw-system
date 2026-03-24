@@ -6,6 +6,10 @@ const {
   createAdminLanguage,
   updateAdminLanguage,
   deleteAdminLanguage,
+  getAdminLessons,
+  createAdminLesson,
+  updateAdminLesson,
+  deleteAdminLesson,
 } = require('../controllers/adminController');
 const authenticateToken = require('../middleware/authMiddleware');
 const requireAdmin = require('../middleware/adminMiddleware');
@@ -17,5 +21,9 @@ router.get('/languages', authenticateToken, requireAdmin, getAdminLanguages);
 router.post('/languages', authenticateToken, requireAdmin, createAdminLanguage);
 router.put('/languages/:languageId', authenticateToken, requireAdmin, updateAdminLanguage);
 router.delete('/languages/:languageId', authenticateToken, requireAdmin, deleteAdminLanguage);
+router.get('/lessons', authenticateToken, requireAdmin, getAdminLessons);
+router.post('/lessons', authenticateToken, requireAdmin, createAdminLesson);
+router.put('/lessons/:lessonId', authenticateToken, requireAdmin, updateAdminLesson);
+router.delete('/lessons/:lessonId', authenticateToken, requireAdmin, deleteAdminLesson);
 
 module.exports = router;

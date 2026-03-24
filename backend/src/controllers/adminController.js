@@ -244,10 +244,211 @@ const deleteAdminLanguage = async (req, res) => {
   }
 };
 
+const getAdminLessons = async (req, res) => {
+  try {
+    const [lessons] = await pool.query(
+      `
+        SELECT
+          lessons.id,
+          lessons.language_id,
+          languages.name AS language_name,
+          lessons.title,
+          lessons.content,
+          lessons.order_number,
+          COALESCE(lessons.points, 10) AS points,
+          lessons.is_pro,
+          lessons.created_at
+        FROM lessons
+        JOIN languages ON languages.id = lessons.language_id
+        ORDER BY languages.name ASC, lessons.order_number ASC, lessons.id ASC
+      `
+    );
+
+    return res.json({
+      success: true,
+      lessons: lessons.map((lesson) => ({
+        ...lesson,
+        order_number: Number(lesson.order_number || 0),
+        points: Number(lesson.points || 10),
+        is_pro: Number(lesson.is_pro || 0),
+      })),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to load lessons right now.',
+      error: error.message,
+    });
+  }
+};
+
+const createAdminLesson = async (req, res) => {
+  try {
+    const { language_id, title, content, order_number, points, is_pro } = req.body;
+
+    if (!language_id || !title?.trim() || !content?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'language_id, title, and content are required.',
+      });
+    }
+
+    const [languageRows] = await pool.query('SELECT id FROM languages WHERE id = ? LIMIT 1', [
+      language_id,
+    ]);
+
+    if (languageRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Selected language was not found.',
+      });
+    }
+
+    const [result] = await pool.query(
+      `
+        INSERT INTO lessons (language_id, title, content, order_number, points, is_pro)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `,
+      [
+        language_id,
+        title.trim(),
+        content.trim(),
+        Number(order_number) || 1,
+        Number(points) || 10,
+        Number(is_pro) === 1 ? 1 : 0,
+      ]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: 'Lesson created successfully.',
+      lesson: {
+        id: result.insertId,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to create lesson right now.',
+      error: error.message,
+    });
+  }
+};
+
+const updateAdminLesson = async (req, res) => {
+  try {
+    const { lessonId } = req.params;
+    const { language_id, title, content, order_number, points, is_pro } = req.body;
+
+    if (!language_id || !title?.trim() || !content?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'language_id, title, and content are required.',
+      });
+    }
+
+    const [lessonRows] = await pool.query('SELECT id FROM lessons WHERE id = ? LIMIT 1', [
+      lessonId,
+    ]);
+
+    if (lessonRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Lesson not found.',
+      });
+    }
+
+    const [languageRows] = await pool.query('SELECT id FROM languages WHERE id = ? LIMIT 1', [
+      language_id,
+    ]);
+
+    if (languageRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Selected language was not found.',
+      });
+    }
+
+    await pool.query(
+      `
+        UPDATE lessons
+        SET language_id = ?, title = ?, content = ?, order_number = ?, points = ?, is_pro = ?
+        WHERE id = ?
+      `,
+      [
+        language_id,
+        title.trim(),
+        content.trim(),
+        Number(order_number) || 1,
+        Number(points) || 10,
+        Number(is_pro) === 1 ? 1 : 0,
+        lessonId,
+      ]
+    );
+
+    return res.json({
+      success: true,
+      message: 'Lesson updated successfully.',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to update lesson right now.',
+      error: error.message,
+    });
+  }
+};
+
+const deleteAdminLesson = async (req, res) => {
+  try {
+    const { lessonId } = req.params;
+
+    const [lessonRows] = await pool.query('SELECT id FROM lessons WHERE id = ? LIMIT 1', [
+      lessonId,
+    ]);
+
+    if (lessonRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Lesson not found.',
+      });
+    }
+
+    const [[progressCountRow]] = await pool.query(
+      'SELECT COUNT(*) AS progress_count FROM progress WHERE lesson_id = ?',
+      [lessonId]
+    );
+
+    if (Number(progressCountRow?.progress_count || 0) > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'This lesson cannot be deleted because learner progress already exists for it.',
+      });
+    }
+
+    await pool.query('DELETE FROM lessons WHERE id = ?', [lessonId]);
+
+    return res.json({
+      success: true,
+      message: 'Lesson deleted successfully.',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to delete lesson right now.',
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAdminDashboard,
   getAdminLanguages,
   createAdminLanguage,
   updateAdminLanguage,
   deleteAdminLanguage,
+  getAdminLessons,
+  createAdminLesson,
+  updateAdminLesson,
+  deleteAdminLesson,
 };
