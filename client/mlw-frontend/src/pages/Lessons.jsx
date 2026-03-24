@@ -20,7 +20,7 @@ export default function Lessons() {
       if (languageId) {
         try {
           const [lessonsRes, progressRes] = await Promise.all([
-            axios.get(`http://localhost:5000/api/lessons/${languageId}`),
+            axios.get(`http://localhost:5000/api/lessons/language/${languageId}`),
             token
               ? axios.get('http://localhost:5000/api/progress', {
                   headers: {
@@ -30,7 +30,9 @@ export default function Lessons() {
               : Promise.resolve({ data: { progress: [] } }),
           ]);
 
-          const lessonRows = lessonsRes.data.lessons || lessonsRes.data || [];
+          const lessonRows = Array.isArray(lessonsRes.data?.lessons)
+            ? lessonsRes.data.lessons
+            : [];
           const progressRows = progressRes.data.progress || progressRes.data || [];
           const progressByLessonId = new Map(
             progressRows.map((item) => [Number(item.lesson_id), item])
@@ -177,11 +179,20 @@ export default function Lessons() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {lessons.map((lesson, index) => (
-          <LessonsGridCard key={lesson.id} lesson={lesson} index={index} />
-        ))}
-      </div>
+      {lessons.length ? (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {lessons.map((lesson, index) => (
+            <LessonsGridCard key={lesson.id} lesson={lesson} index={index} />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 text-center shadow-sm">
+          <h3 className="text-lg font-semibold text-[#17392d]">No lessons available</h3>
+          <p className="mt-2 text-sm text-slate-600">
+            This language does not have lessons yet. Check back later or choose another language.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

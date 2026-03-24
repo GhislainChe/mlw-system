@@ -6,6 +6,7 @@ export default function LessonsGridCard({ lesson, index }) {
   const progressPercent =
     Number(lesson.completed) === 1 ? 100 : Math.max(0, Number(lesson.progress_percent) || 0);
   const isCompleted = progressPercent === 100;
+  const isStarted = progressPercent > 0 && progressPercent < 100;
   const isPro = Number(lesson.is_pro) === 1;
 
   const getIcon = () => {
@@ -17,7 +18,14 @@ export default function LessonsGridCard({ lesson, index }) {
   const getStatusLabel = () => {
     if (isPro) return 'Pro Lesson';
     if (isCompleted) return 'Completed';
-    return 'Available';
+    if (isStarted) return 'In progress';
+    return 'Not started';
+  };
+
+  const getActionLabel = () => {
+    if (isCompleted) return 'Review';
+    if (isStarted) return 'Continue';
+    return 'Start';
   };
 
   return (
@@ -51,7 +59,9 @@ export default function LessonsGridCard({ lesson, index }) {
               ? 'bg-amber-50 text-amber-700'
               : isCompleted
                 ? 'bg-emerald-50 text-emerald-700'
-                : 'bg-slate-100 text-slate-600',
+                : isStarted
+                  ? 'bg-sky-50 text-sky-700'
+                  : 'bg-slate-100 text-slate-600',
           ].join(' ')}
         >
           {getStatusLabel()}
@@ -61,12 +71,15 @@ export default function LessonsGridCard({ lesson, index }) {
       <div className="mt-5 flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-3 text-sm text-slate-600">
-            <span>{isCompleted ? 'Completed' : 'Progress'}</span>
+            <span>{getStatusLabel()}</span>
             <span>{progressPercent}%</span>
           </div>
           <div className="mt-2 h-2 w-full rounded-full bg-slate-200">
             <div
-              className="h-2 rounded-full bg-emerald-600 transition duration-200"
+              className={[
+                'h-2 rounded-full transition-all duration-500 ease-out',
+                isCompleted ? 'bg-emerald-600' : isStarted ? 'bg-sky-500' : 'bg-slate-300',
+              ].join(' ')}
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -76,9 +89,17 @@ export default function LessonsGridCard({ lesson, index }) {
           onClick={(event) => {
             event.stopPropagation();
           }}
-          className="rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition duration-200 hover:bg-emerald-700"
+          className={[
+            'inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold transition duration-200',
+            isCompleted
+              ? 'border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+              : isStarted
+                ? 'bg-[#17392d] text-white hover:bg-[#214d3d]'
+                : 'bg-emerald-600 text-white hover:bg-emerald-700',
+          ].join(' ')}
         >
-          Start Lesson
+          {isCompleted ? <CheckCircle className="h-4 w-4" /> : null}
+          {getActionLabel()}
         </Link>
       </div>
     </article>

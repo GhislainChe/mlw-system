@@ -6,6 +6,7 @@ import {
   Globe2,
   LoaderCircle,
   Sparkles,
+  Trophy,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -18,7 +19,7 @@ export default function LessonPlayer() {
   const [progressPercent, setProgressPercent] = useState(0);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(false);
-  const [message, setMessage] = useState('');
+  const [toast, setToast] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -48,12 +49,12 @@ export default function LessonPlayer() {
           lessonPayload = fallbackRes.data.lesson || fallbackRes.data;
         }
 
-        const [languagesRes, , progressRes] = await Promise.all([
+        const token = localStorage.getItem('token');
+        const [languagesRes, progressRes] = await Promise.all([
           axios.get('http://localhost:5000/api/languages'),
-          axios.get(`http://localhost:5000/api/lessons/${lessonPayload.language_id}`),
           axios.get('http://localhost:5000/api/progress', {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              Authorization: `Bearer ${token}`,
             },
           }),
         ]);
@@ -87,6 +88,7 @@ export default function LessonPlayer() {
   }, [currentLessonId]);
 
   const lessonOrder = Number(lesson?.order_number) || 1;
+  const isCompleted = progressPercent === 100;
 
   const handleComplete = async () => {
     try {
@@ -105,8 +107,10 @@ export default function LessonPlayer() {
       );
 
       setProgressPercent(100);
-      setMessage('Lesson completed successfully. Returning to lessons...');
-      setTimeout(() => navigate(lesson?.language_id ? `/lessons/${lesson.language_id}` : '/lessons'), 1200);
+      setToast('Lesson completed successfully.');
+      setTimeout(() => {
+        navigate(lesson?.language_id ? `/lessons/${lesson.language_id}` : '/lessons');
+      }, 1200);
     } catch (submitError) {
       setError('Unable to mark this lesson as complete right now.');
     } finally {
@@ -135,6 +139,15 @@ export default function LessonPlayer() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
+      {toast ? (
+        <div className="fixed right-5 top-5 z-50 rounded-2xl border border-emerald-200 bg-white px-4 py-3 shadow-lg">
+          <div className="flex items-center gap-3 text-sm font-medium text-emerald-700">
+            <CheckCircle2 className="h-4 w-4" />
+            {toast}
+          </div>
+        </div>
+      ) : null}
+
       <section className="overflow-hidden rounded-[2rem] border border-[#dce6de] bg-white shadow-sm">
         <div className="border-b border-[#e4ede5] bg-gradient-to-br from-[#f7fbf8] via-[#fdfefc] to-[#eef6f0] px-6 py-6 sm:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -170,7 +183,7 @@ export default function LessonPlayer() {
               </div>
               <div className="mt-3 h-2 w-full rounded-full bg-slate-200">
                 <div
-                  className="h-2 rounded-full bg-emerald-600"
+                  className="h-2 rounded-full bg-emerald-600 transition-all duration-500 ease-out"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -208,6 +221,19 @@ export default function LessonPlayer() {
               When you finish reading and practicing, save your progress and continue to the next lesson.
             </p>
 
+            <div className="mt-4 rounded-2xl border border-[#dce6de] bg-white px-4 py-3">
+              <div className="flex items-center justify-between text-sm text-slate-600">
+                <span>Current lesson progress</span>
+                <span className="font-semibold text-[#17392d]">{progressPercent}%</span>
+              </div>
+              <div className="mt-2 h-2 w-full rounded-full bg-slate-200">
+                <div
+                  className="h-2 rounded-full bg-emerald-600 transition-all duration-500 ease-out"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+
             {lesson?.is_pro ? (
               <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
                 This is a Pro lesson.
@@ -217,13 +243,23 @@ export default function LessonPlayer() {
             <button
               type="button"
               onClick={handleComplete}
-              disabled={completing}
-              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-400"
+              disabled={completing || isCompleted}
+              className={[
+                'mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold transition duration-200',
+                isCompleted
+                  ? 'cursor-not-allowed border border-emerald-200 bg-emerald-50 text-emerald-700'
+                  : 'bg-emerald-600 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-400',
+              ].join(' ')}
             >
               {completing ? (
                 <>
                   <LoaderCircle className="h-4 w-4 animate-spin" />
                   Saving...
+                </>
+              ) : isCompleted ? (
+                <>
+                  <Trophy className="h-4 w-4" />
+                  Completed
                 </>
               ) : (
                 <>
@@ -235,12 +271,6 @@ export default function LessonPlayer() {
           </aside>
         </div>
       </section>
-
-      {message ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-700">
-          {message}
-        </div>
-      ) : null}
 
       {error ? (
         <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
