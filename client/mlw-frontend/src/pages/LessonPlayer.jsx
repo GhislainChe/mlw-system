@@ -6,6 +6,7 @@ import {
   Globe2,
   LoaderCircle,
   Sparkles,
+  Star,
   Trophy,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -13,8 +14,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 export default function LessonPlayer() {
   const navigate = useNavigate();
-  const { lessonId, id } = useParams();
-  const currentLessonId = lessonId || id;
+  const { lessonId } = useParams();
   const [lesson, setLesson] = useState(null);
   const [progressPercent, setProgressPercent] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -24,33 +24,16 @@ export default function LessonPlayer() {
 
   useEffect(() => {
     const fetchLesson = async () => {
-      if (!currentLessonId) {
+      if (!lessonId) {
         setLoading(false);
         setError('Lesson not found.');
         return;
       }
 
       try {
-        let lessonPayload = null;
-
-        try {
-          const res = await axios.get(`http://localhost:5000/api/lessons/${currentLessonId}`);
-          const payload = res.data.lesson || res.data;
-
-          if (payload?.id && payload?.title && payload?.content !== undefined) {
-            lessonPayload = payload;
-          }
-        } catch {
-          lessonPayload = null;
-        }
-
-        if (!lessonPayload) {
-          const fallbackRes = await axios.get(`http://localhost:5000/api/lesson/${currentLessonId}`);
-          lessonPayload = fallbackRes.data.lesson || fallbackRes.data;
-        }
-
         const token = localStorage.getItem('token');
-        const [languagesRes, progressRes] = await Promise.all([
+        const [lessonRes, languagesRes, progressRes] = await Promise.all([
+          axios.get(`http://localhost:5000/api/lessons/${lessonId}`),
           axios.get('http://localhost:5000/api/languages'),
           axios.get('http://localhost:5000/api/progress', {
             headers: {
@@ -59,11 +42,14 @@ export default function LessonPlayer() {
           }),
         ]);
 
+        const lessonPayload = lessonRes.data.lesson || lessonRes.data;
         const languages = languagesRes.data.languages || languagesRes.data || [];
         const language = languages.find(
           (item) => Number(item.id) === Number(lessonPayload.language_id)
         );
-        const progressRows = progressRes.data.progress || progressRes.data || [];
+        const progressRows = Array.isArray(progressRes.data?.progress)
+          ? progressRes.data.progress
+          : [];
         const currentProgress = progressRows.find(
           (item) => Number(item.lesson_id) === Number(lessonPayload.id)
         );
@@ -85,10 +71,19 @@ export default function LessonPlayer() {
     };
 
     fetchLesson();
-  }, [currentLessonId]);
+  }, [lessonId]);
 
   const lessonOrder = Number(lesson?.order_number) || 1;
   const isCompleted = progressPercent === 100;
+  const contentSegments = (lesson?.content || '')
+    .split('.')
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  const statusLabel = isCompleted
+    ? 'Completed'
+    : progressPercent > 0
+      ? 'In Progress'
+      : 'Not Started';
 
   const handleComplete = async () => {
     try {
@@ -98,7 +93,7 @@ export default function LessonPlayer() {
 
       await axios.post(
         'http://localhost:5000/api/progress',
-        { lessonId: currentLessonId, progressPercent: 100, completed: true },
+        { lessonId: lesson.id, progress_percent: 100, completed: 1 },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -148,127 +143,151 @@ export default function LessonPlayer() {
         </div>
       ) : null}
 
-      <section className="overflow-hidden rounded-[2rem] border border-[#dce6de] bg-white shadow-sm">
-        <div className="border-b border-[#e4ede5] bg-gradient-to-br from-[#f7fbf8] via-[#fdfefc] to-[#eef6f0] px-6 py-6 sm:px-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div className="rounded-[1.7rem] border border-[#dce6de] bg-white px-5 py-4 shadow-sm sm:px-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition duration-200 hover:text-[#17392d]"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back
+            </button>
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-[#2d6c49]">
+              <Globe2 className="h-4 w-4" />
+              {lesson?.language_name || 'Language'}
+            </span>
+            <span className="rounded-full bg-[#f3f6f3] px-3 py-1 text-xs font-semibold text-slate-600">
+              Lesson {lessonOrder}
+            </span>
+          </div>
+
+          <span
+            className={[
+              'inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold',
+              isCompleted
+                ? 'bg-emerald-50 text-emerald-700'
+                : progressPercent > 0
+                  ? 'bg-sky-50 text-sky-700'
+                  : 'bg-slate-100 text-slate-600',
+            ].join(' ')}
+          >
+            {isCompleted ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
+            {statusLabel}
+          </span>
+        </div>
+      </div>
+
+      <section className="rounded-[2rem] border border-[#dce6de] bg-white p-6 shadow-sm sm:p-7">
+        <div className="space-y-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition duration-200 hover:text-[#17392d]"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Back
-              </button>
-              <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
+              <p className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">
                 <Sparkles className="h-3.5 w-3.5" />
-                Lesson Player
-              </div>
-              <div className="mt-4 space-y-2">
-                <div className="inline-flex items-center gap-2 text-sm font-medium text-[#2d6c49]">
-                  <Globe2 className="h-4 w-4" />
-                  {lesson?.language_name || 'Language'}
-                </div>
-                <h1 className="text-[1.8rem] font-semibold tracking-[-0.04em] text-[#17392d] sm:text-[2.15rem]">
-                  {lesson?.title || 'Lesson'}
-                </h1>
-                <p className="text-sm text-slate-600">Lesson {lessonOrder}</p>
-              </div>
+                Lesson Focus
+              </p>
+              <h1 className="mt-4 text-[1.8rem] font-semibold tracking-[-0.04em] text-[#17392d] sm:text-[2.15rem]">
+                {lesson?.title || 'Lesson'}
+              </h1>
             </div>
 
-            <div className="w-full max-w-sm rounded-2xl border border-[#dce6de] bg-white/90 p-4 shadow-sm">
-              <div className="flex items-center justify-between text-sm text-slate-600">
-                <span>Progress</span>
-                <span>{progressPercent}%</span>
+            <div className="grid w-full gap-3 sm:max-w-sm sm:grid-cols-2 lg:w-[320px] lg:grid-cols-1">
+              <div className="rounded-2xl border border-[#dce6de] bg-[#f8fbf8] px-4 py-3">
+                <div className="flex items-center justify-between text-sm text-slate-600">
+                  <span className="inline-flex items-center gap-2">
+                    <Star className="h-4 w-4 text-amber-500" />
+                    Points
+                  </span>
+                  <span className="font-semibold text-[#17392d]">{Number(lesson?.points) || 10}</span>
+                </div>
               </div>
-              <div className="mt-3 h-2 w-full rounded-full bg-slate-200">
-                <div
-                  className="h-2 rounded-full bg-emerald-600 transition-all duration-500 ease-out"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-              <p className="mt-3 text-xs uppercase tracking-[0.22em] text-slate-400">
-                {progressPercent === 100 ? 'Lesson completed' : 'Saved lesson progress'}
-              </p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#dce6de] bg-[#fbfdfb] px-4 py-4">
+            <div className="flex items-center justify-between gap-3 text-sm text-slate-600">
+              <span>Progress</span>
+              <span className="font-semibold text-[#17392d]">{progressPercent}%</span>
+            </div>
+            <div className="mt-3 h-2.5 w-full rounded-full bg-slate-200">
+              <div
+                className="h-2.5 rounded-full bg-emerald-600 transition-all duration-500 ease-out"
+                style={{ width: `${progressPercent}%` }}
+              />
             </div>
           </div>
         </div>
+      </section>
 
-        <div className="grid gap-6 px-6 py-6 sm:px-8 sm:py-8 lg:grid-cols-[minmax(0,1fr)_280px]">
-          <div className="space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-                <BookText className="h-5 w-5" />
+      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
+            <BookText className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-[#17392d]">Lesson Content</h2>
+            <p className="text-sm text-slate-500">
+              Read the lesson in short segments for easier study and review.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 space-y-3">
+          {contentSegments.length ? (
+            contentSegments.map((segment, idx) => (
+              <div
+                key={`${segment}-${idx}`}
+                className="rounded-2xl border border-[#e1eae2] bg-[#fbfdfb] px-4 py-4 text-[0.98rem] leading-7 text-slate-700"
+              >
+                {segment}.
               </div>
-              <div>
-                <h2 className="text-lg font-semibold text-[#17392d]">Lesson Content</h2>
-                <p className="text-sm text-slate-500">
-                  Read through the full lesson carefully before marking it complete.
-                </p>
-              </div>
+            ))
+          ) : (
+            <div className="rounded-2xl border border-[#e1eae2] bg-[#fbfdfb] px-4 py-4 text-[0.98rem] leading-7 text-slate-700">
+              No lesson content available yet.
             </div>
+          )}
+        </div>
+      </section>
 
-            <article className="rounded-2xl border border-slate-200 bg-[#fbfdfb] p-5 sm:p-6">
-              <p className="whitespace-pre-line text-[0.98rem] leading-8 text-slate-700">
-                {lesson?.content || 'No lesson content available yet.'}
-              </p>
-            </article>
+      <section className="rounded-[1.7rem] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-[#17392d]">Lesson Actions</h3>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              Save your progress when you finish studying this lesson.
+            </p>
           </div>
 
-          <aside className="h-fit rounded-2xl border border-slate-200 bg-[#fcfdfb] p-5 shadow-sm">
-            <h3 className="text-base font-semibold text-[#17392d]">Complete this lesson</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              When you finish reading and practicing, save your progress and continue to the next lesson.
-            </p>
-
-            <div className="mt-4 rounded-2xl border border-[#dce6de] bg-white px-4 py-3">
-              <div className="flex items-center justify-between text-sm text-slate-600">
-                <span>Current lesson progress</span>
-                <span className="font-semibold text-[#17392d]">{progressPercent}%</span>
-              </div>
-              <div className="mt-2 h-2 w-full rounded-full bg-slate-200">
-                <div
-                  className="h-2 rounded-full bg-emerald-600 transition-all duration-500 ease-out"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-            </div>
-
-            {lesson?.is_pro ? (
-              <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-                This is a Pro lesson.
-              </div>
-            ) : null}
-
-            <button
-              type="button"
-              onClick={handleComplete}
-              disabled={completing || isCompleted}
-              className={[
-                'mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold transition duration-200',
-                isCompleted
-                  ? 'cursor-not-allowed border border-emerald-200 bg-emerald-50 text-emerald-700'
-                  : 'bg-emerald-600 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-400',
-              ].join(' ')}
-            >
-              {completing ? (
-                <>
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : isCompleted ? (
-                <>
-                  <Trophy className="h-4 w-4" />
-                  Completed
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="h-4 w-4" />
-                  Complete Lesson
-                </>
-              )}
-            </button>
-          </aside>
+          <button
+            type="button"
+            onClick={handleComplete}
+            disabled={completing || isCompleted}
+            className={[
+              'inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold transition duration-200',
+              isCompleted
+                ? 'cursor-not-allowed border border-emerald-200 bg-emerald-50 text-emerald-700'
+                : 'bg-emerald-600 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-400',
+            ].join(' ')}
+          >
+            {completing ? (
+              <>
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : isCompleted ? (
+              <>
+                <Trophy className="h-4 w-4" />
+                Completed
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="h-4 w-4" />
+                Complete Lesson
+              </>
+            )}
+          </button>
         </div>
       </section>
 
