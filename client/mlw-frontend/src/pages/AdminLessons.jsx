@@ -61,8 +61,8 @@ function LessonFormModal({
         </div>
 
         <div className="overflow-y-auto px-6 py-5">
-        <form className="space-y-4" onSubmit={onSubmit}>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <form className="space-y-4" onSubmit={onSubmit}>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-slate-700">Language</span>
               <select
@@ -91,164 +91,164 @@ function LessonFormModal({
                 className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
               />
             </label>
-          </div>
+            </div>
 
-          <div className="rounded-[1.4rem] border border-[#dce6de] bg-[#f8fbf8] px-4 py-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-emerald-700">Content Structure</p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Fill the lesson in sections instead of typing raw headings manually. We will still save everything into the existing single content field.
-            </p>
-          </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-slate-700">Introduction</span>
-            <textarea
-              name="introduction"
-              value={formData.introduction}
-              onChange={onChange}
-              rows={4}
-              placeholder={template.introduction}
-              className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
-            />
-          </label>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700">Vocabulary</span>
-              <textarea
-                name="vocabulary"
-                value={formData.vocabulary}
-                onChange={onChange}
-                rows={6}
-                placeholder={template.vocabulary}
-                className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
-              />
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700">Examples</span>
-              <textarea
-                name="examples"
-                value={formData.examples}
-                onChange={onChange}
-                rows={6}
-                placeholder={template.examples}
-                className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
-              />
-            </label>
-          </div>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-slate-700">Note</span>
-            <textarea
-              name="note"
-              value={formData.note}
-              onChange={onChange}
-              rows={3}
-              placeholder={template.note}
-              className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
-            />
-          </label>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700">Order Number</span>
-              <input
-                type="number"
-                min="1"
-                name="order_number"
-                value={formData.order_number}
-                readOnly
-                className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-700 outline-none"
-              />
-              <p className="mt-2 text-xs leading-5 text-slate-500">
-                Auto-generated from the selected language.
+            <div className="rounded-[1.4rem] border border-[#dce6de] bg-[#f8fbf8] px-4 py-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-emerald-700">Content Structure</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Fill the lesson in sections instead of typing raw headings manually. We will still save everything into the existing single content field.
               </p>
-            </label>
+            </div>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700">Points</span>
-              <input
-                type="number"
-                min="0"
-                name="points"
-                value={formData.points}
+              <span className="mb-2 block text-sm font-medium text-slate-700">Introduction</span>
+              <textarea
+                name="introduction"
+                value={formData.introduction}
                 onChange={onChange}
-                className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500"
+                rows={4}
+                placeholder={template.introduction}
+                className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
               />
             </label>
 
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-700">Vocabulary</span>
+                <textarea
+                  name="vocabulary"
+                  value={formData.vocabulary}
+                  onChange={onChange}
+                  rows={6}
+                  placeholder={template.vocabulary}
+                  className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-700">Examples</span>
+                <textarea
+                  name="examples"
+                  value={formData.examples}
+                  onChange={onChange}
+                  rows={6}
+                  placeholder={template.examples}
+                  className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
+                />
+              </label>
+            </div>
+
             <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700">Access</span>
-              <select
-                name="is_pro"
-                value={formData.is_pro}
+              <span className="mb-2 block text-sm font-medium text-slate-700">Note</span>
+              <textarea
+                name="note"
+                value={formData.note}
                 onChange={onChange}
-                className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500"
-              >
-                <option value={0}>Free</option>
-                <option value={1}>Pro</option>
-              </select>
+                rows={3}
+                placeholder={template.note}
+                className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
+              />
             </label>
-          </div>
 
-          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-400"
-            >
-              {isSubmitting
-                ? mode === 'create'
-                  ? 'Creating...'
-                  : 'Saving...'
-                : mode === 'create'
-                  ? 'Create Lesson'
-                  : 'Save Changes'}
-            </button>
-          </div>
-        </form>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-700">Order Number</span>
+                <input
+                  type="number"
+                  min="1"
+                  name="order_number"
+                  value={formData.order_number}
+                  readOnly
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-700 outline-none"
+                />
+                <p className="mt-2 text-xs leading-5 text-slate-500">
+                  Auto-generated from the selected language.
+                </p>
+              </label>
 
-        <div className="mt-6 rounded-[1.5rem] border border-[#dce6de] bg-[#f8fbf8] p-5">
-          <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">Lesson Preview</p>
-          <div className="mt-4 space-y-3">
-            {parsedPreview.length ? (
-              parsedPreview.map((section) => (
-                <div
-                  key={section.label}
-                  className={[
-                    'rounded-2xl border px-4 py-4',
-                    section.label === 'Note'
-                      ? 'border-emerald-100 bg-emerald-50/70'
-                      : 'border-slate-200 bg-white',
-                  ].join(' ')}
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-700">Points</span>
+                <input
+                  type="number"
+                  min="0"
+                  name="points"
+                  value={formData.points}
+                  onChange={onChange}
+                  className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-700">Access</span>
+                <select
+                  name="is_pro"
+                  value={formData.is_pro}
+                  onChange={onChange}
+                  className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500"
                 >
-                  <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#17392d]">
-                    {section.label}
-                  </h4>
-                  <div className="mt-3 space-y-2">
-                    {section.items.map((item, index) => (
-                      <p key={`${section.label}-${index}`} className="text-sm leading-6 text-slate-600">
-                        {item}
-                      </p>
-                    ))}
+                  <option value={0}>Free</option>
+                  <option value={1}>Pro</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-400"
+              >
+                {isSubmitting
+                  ? mode === 'create'
+                    ? 'Creating...'
+                    : 'Saving...'
+                  : mode === 'create'
+                    ? 'Create Lesson'
+                    : 'Save Changes'}
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-6 rounded-[1.5rem] border border-[#dce6de] bg-[#f8fbf8] p-5">
+            <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">Lesson Preview</p>
+            <div className="mt-4 space-y-3">
+              {parsedPreview.length ? (
+                parsedPreview.map((section) => (
+                  <div
+                    key={section.label}
+                    className={[
+                      'rounded-2xl border px-4 py-4',
+                      section.label === 'Note'
+                        ? 'border-emerald-100 bg-emerald-50/70'
+                        : 'border-slate-200 bg-white',
+                    ].join(' ')}
+                  >
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#17392d]">
+                      {section.label}
+                    </h4>
+                    <div className="mt-3 space-y-2">
+                      {section.items.map((item, index) => (
+                        <p key={`${section.label}-${index}`} className="text-sm leading-6 text-slate-600">
+                          {item}
+                        </p>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm leading-6 text-slate-600">
-                Start writing with the structured section headings to preview the lesson layout.
-              </p>
-            )}
+                ))
+              ) : (
+                <p className="text-sm leading-6 text-slate-600">
+                  Start writing with the structured section headings to preview the lesson layout.
+                </p>
+              )}
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </div>
