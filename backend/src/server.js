@@ -9,6 +9,7 @@ const lessonRoutes = require('./routes/lessonRoutes');
 const progressRoutes = require('./routes/progressRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
 const port = process.env.PORT;
@@ -22,6 +23,7 @@ app.use('/api', lessonRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/profile', profileRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'MLW backend is running.' });

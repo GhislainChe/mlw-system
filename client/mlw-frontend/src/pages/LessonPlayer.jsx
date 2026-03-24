@@ -24,6 +24,8 @@ export default function LessonPlayer() {
 
   useEffect(() => {
     const fetchLesson = async () => {
+      console.log('lessonId:', lessonId);
+
       if (!lessonId) {
         setLoading(false);
         setError('Lesson not found.');
@@ -31,32 +33,58 @@ export default function LessonPlayer() {
       }
 
       try {
-        const token = localStorage.getItem('token');
-        const [lessonRes, languagesRes, progressRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/lessons/${lessonId}`),
-          axios.get('http://localhost:5000/api/languages'),
-          axios.get('http://localhost:5000/api/progress', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-        ]);
+        const lessonResponse = await axios.get(`http://localhost:5000/api/lessons/${lessonId}`);
+        console.log('lesson response:', lessonResponse.data);
 
-        const lessonPayload = lessonRes.data.lesson || lessonRes.data;
-        const languages = languagesRes.data.languages || languagesRes.data || [];
-        const language = languages.find(
-          (item) => Number(item.id) === Number(lessonPayload.language_id)
-        );
-        const progressRows = Array.isArray(progressRes.data?.progress)
-          ? progressRes.data.progress
-          : [];
-        const currentProgress = progressRows.find(
-          (item) => Number(item.lesson_id) === Number(lessonPayload.id)
-        );
+        let lessonData = lessonResponse.data?.lesson || lessonResponse.data || null;
+        console.log('parsed lesson:', lessonData);
+
+        if (!lessonData || !lessonData.id) {
+          const fallbackResponse = await axios.get(`http://localhost:5000/api/lesson/${lessonId}`);
+          console.log('lesson response:', fallbackResponse.data);
+          lessonData = fallbackResponse.data?.lesson || fallbackResponse.data || null;
+          console.log('parsed lesson:', lessonData);
+        }
+
+        if (!lessonData || !lessonData.id) {
+          throw new Error('Invalid lesson response');
+        }
+
+        let languageName = 'Language';
+        try {
+          const languagesRes = await axios.get('http://localhost:5000/api/languages');
+          const languages = languagesRes.data.languages || languagesRes.data || [];
+          const language = languages.find(
+            (item) => Number(item.id) === Number(lessonData.language_id)
+          );
+          languageName = language?.name || 'Language';
+        } catch (languageError) {
+          console.error('Failed to fetch languages for lesson page', languageError);
+        }
+
+        let currentProgress = null;
+        const token = localStorage.getItem('token');
+        if (token) {
+          try {
+            const progressRes = await axios.get('http://localhost:5000/api/progress', {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            const progressRows = Array.isArray(progressRes.data?.progress)
+              ? progressRes.data.progress
+              : [];
+            currentProgress = progressRows.find(
+              (item) => Number(item.lesson_id) === Number(lessonData.id)
+            ) || null;
+          } catch (progressError) {
+            console.error('Failed to fetch lesson progress', progressError);
+          }
+        }
 
         setLesson({
-          ...lessonPayload,
-          language_name: language?.name || 'Language',
+          ...lessonData,
+          language_name: languageName,
         });
         setProgressPercent(
           Number(currentProgress?.completed) === 1
@@ -89,11 +117,25 @@ export default function LessonPlayer() {
     try {
       setCompleting(true);
       setError('');
+
+      if (!lesson || !lesson.id) {
+        setError('Lesson data is missing. Please reload the page and try again.');
+        setCompleting(false);
+        return;
+      }
+
       const token = localStorage.getItem('token');
+      const payload = {
+        lessonId: lesson.id,
+        progress_percent: 100,
+        completed: 1,
+      };
+
+      console.log('submit payload', payload);
 
       await axios.post(
         'http://localhost:5000/api/progress',
-        { lessonId: lesson.id, progress_percent: 100, completed: 1 },
+        payload,
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -1,19 +1,20 @@
 import axios from 'axios';
-import { BookOpen, Flame, Star, Trophy } from 'lucide-react';
+import { ArrowRight, BookOpen, Flame, Star, Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import LanguageCard from '../components/dashboard/LanguageCard';
 import LessonCard from '../components/dashboard/LessonCard';
 import StatCard from '../components/dashboard/StatCard';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     streak: 0,
     points: 0,
     completedLessons: 0,
     rank: 0,
   });
-  const [languages, setLanguages] = useState([]);
+  const [continueLesson, setContinueLesson] = useState(null);
   const [recentLessons, setRecentLessons] = useState([]);
   const [error, setError] = useState('');
 
@@ -38,16 +39,24 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const fetchLanguages = async () => {
+    const fetchContinueLearning = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/languages');
-        setLanguages(res.data.languages || res.data || []);
+        const token = localStorage.getItem('token');
+
+        const res = await axios.get('http://localhost:5000/api/dashboard/continue-learning', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setContinueLesson(res.data || null);
       } catch (fetchError) {
-        console.error('Failed to load languages', fetchError);
+        console.error('Failed to load continue learning lesson', fetchError);
+        setContinueLesson(null);
       }
     };
 
-    fetchLanguages();
+    fetchContinueLearning();
   }, []);
 
   useEffect(() => {
@@ -61,7 +70,7 @@ export default function Dashboard() {
           },
         });
 
-        setRecentLessons(res.data);
+        setRecentLessons(Array.isArray(res.data) ? res.data.slice(0, 3) : []);
       } catch (fetchError) {
         console.error('Failed to load recent lessons', fetchError);
       }
@@ -107,15 +116,65 @@ export default function Dashboard() {
             Continue Learning
           </h2>
           <p className="mt-1 text-sm text-slate-600">
-            Jump back into your active language paths.
+            Jump back into the lesson you were studying most recently.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {languages.slice(0, 3).map((language) => (
-            <LanguageCard key={language.id} language={language} />
-          ))}
-        </div>
+        {continueLesson ? (
+          <div className="rounded-[1.8rem] border border-emerald-100 bg-gradient-to-r from-[#f5fbf7] via-white to-[#eef7f1] p-6 shadow-sm">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+                  <BookOpen className="h-4 w-4" />
+                  Continue Learning
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-emerald-700">
+                    {continueLesson.language_name}
+                  </p>
+                  <h3 className="mt-1 text-2xl font-semibold tracking-[-0.03em] text-[#17392d]">
+                    {continueLesson.lesson_title}
+                  </h3>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Lesson {continueLesson.order_number}
+                  </p>
+                </div>
+
+                <div className="max-w-xl space-y-2">
+                  <div className="flex items-center justify-between text-sm text-slate-600">
+                    <span>Progress</span>
+                    <span>{continueLesson.progress_percent || 0}%</span>
+                  </div>
+                  <div className="h-2.5 overflow-hidden rounded-full bg-emerald-100">
+                    <div
+                      className="h-full rounded-full bg-emerald-600 transition-all duration-500 ease-out"
+                      style={{ width: `${continueLesson.progress_percent || 0}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => navigate(`/lesson/${continueLesson.lesson_id}`)}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-emerald-700"
+              >
+                Resume Lesson
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-[1.8rem] border border-dashed border-[#d5e2d7] bg-[#f8fbf8] px-6 py-8 text-center shadow-sm">
+            <h3 className="text-lg font-semibold text-[#17392d]">
+              You have no lesson in progress yet.
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Start a language path from the lessons page and your next lesson to resume will appear here.
+            </p>
+          </div>
+        )}
       </section>
 
       <section>

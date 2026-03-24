@@ -8,7 +8,9 @@ import Leaderboard from '../pages/Leaderboard';
 import LessonPlayer from '../pages/LessonPlayer';
 import Lessons from '../pages/Lessons';
 import Login from '../pages/Login';
+import Profile from '../pages/Profile';
 import Register from '../pages/Register';
+import Settings from '../pages/Settings';
 import ProtectedRoute from './ProtectedRoute';
 
 export default function AppRoutes() {
@@ -27,8 +29,8 @@ export default function AppRoutes() {
             <Route path="/lessons/:languageId" element={<Lessons />} />
             <Route path="/lesson/:lessonId" element={<LessonPlayer />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/profile" element={<Dashboard />} />
-            <Route path="/settings" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
         </Route>
 

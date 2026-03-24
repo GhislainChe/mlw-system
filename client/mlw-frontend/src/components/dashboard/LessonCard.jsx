@@ -15,15 +15,20 @@ export default function LessonCard({ lesson }) {
             <BookOpen className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-[#17392d]">{lesson.title}</h3>
-            <p className="text-sm text-slate-500">Lesson #{lesson.id}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+              {lesson.language_name}
+            </p>
+            <h3 className="mt-1 text-base font-semibold text-[#17392d]">
+              {lesson.lesson_title}
+            </h3>
+            <p className="text-sm text-slate-500">Lesson {lesson.order_number}</p>
           </div>
         </div>
 
         <span
           className={[
             'rounded-full px-3 py-1 text-xs font-semibold',
-            isCompleted ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700',
+            isCompleted ? 'bg-emerald-50 text-emerald-700' : 'bg-sky-50 text-sky-700',
           ].join(' ')}
         >
           {isCompleted ? 'Completed' : 'In Progress'}
@@ -33,23 +38,23 @@ export default function LessonCard({ lesson }) {
       <div className="mt-4 flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-3 text-sm text-slate-600">
-            <span>{isCompleted ? 'Completed successfully.' : 'Continue where you left off.'}</span>
+            <span>{isCompleted ? 'Completed' : 'Progress'}</span>
             <span>{progressPercent}%</span>
           </div>
           <div className="mt-2 h-2 w-full rounded-full bg-slate-200">
             <div
-              className="h-2 rounded-full bg-emerald-600 transition duration-200"
+              className="h-2 rounded-full bg-emerald-600 transition-all duration-500 ease-out"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
         </div>
         <button
           type="button"
-          onClick={() => navigate(`/lesson/${lesson.id}`)}
+          onClick={() => navigate(`/lesson/${lesson.lesson_id}`)}
           className="inline-flex items-center gap-2 rounded-2xl bg-[#17392d] px-4 py-2.5 text-sm font-semibold text-white transition duration-200 hover:bg-[#214d3d]"
         >
           <PlayCircle className="h-4 w-4" />
-          Resume
+          {isCompleted ? 'Review' : 'Continue'}
         </button>
       </div>
     </article>

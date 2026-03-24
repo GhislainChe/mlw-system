@@ -58,21 +58,60 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
+const getContinueLearning = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const [rows] = await db.execute(
+      `SELECT
+          lessons.id AS lesson_id,
+          lessons.title AS lesson_title,
+          lessons.order_number,
+          lessons.language_id,
+          languages.name AS language_name,
+          progress.progress_percent,
+          progress.completed,
+          progress.updated_at
+       FROM progress
+       JOIN lessons ON lessons.id = progress.lesson_id
+       JOIN languages ON languages.id = lessons.language_id
+       WHERE progress.user_id = ?
+         AND progress.completed = 0
+         AND progress.progress_percent > 0
+       ORDER BY progress.updated_at DESC
+       LIMIT 1`,
+      [userId]
+    );
+
+    return res.status(200).json(rows[0] || null);
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Failed to fetch continue learning lesson.',
+      error: error.message,
+    });
+  }
+};
+
 const getRecentLessons = async (req, res) => {
   try {
     const userId = req.user.id;
 
     const [lessons] = await db.execute(
       `SELECT
-          lessons.*,
-          progress.points,
+          lessons.id AS lesson_id,
+          lessons.title AS lesson_title,
+          lessons.order_number,
+          lessons.language_id,
+          languages.name AS language_name,
           progress.progress_percent,
+          progress.completed,
           progress.updated_at
        FROM progress
        JOIN lessons ON lessons.id = progress.lesson_id
+       JOIN languages ON languages.id = lessons.language_id
        WHERE progress.user_id = ?
        ORDER BY progress.updated_at DESC
-       LIMIT 5`,
+       LIMIT 3`,
       [userId]
     );
 
@@ -87,5 +126,6 @@ const getRecentLessons = async (req, res) => {
 
 module.exports = {
   getDashboardStats,
+  getContinueLearning,
   getRecentLessons,
 };
