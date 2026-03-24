@@ -6,15 +6,20 @@ import EmptyStateCard from '../components/ui/EmptyStateCard';
 import SectionHeader from '../components/ui/SectionHeader';
 import {
   buildLessonContentPreview,
+  buildStructuredLessonContent,
   getOrderedLessonSections,
   getStructuredLessonTemplate,
   parseLessonContent,
+  parseLessonContentForForm,
 } from '../utils/lessonContent';
 
 const emptyForm = {
   language_id: '',
   title: '',
-  content: '',
+  introduction: '',
+  vocabulary: '',
+  examples: '',
+  note: '',
   order_number: 1,
   points: 10,
   is_pro: 0,
@@ -25,16 +30,19 @@ function LessonFormModal({
   languages,
   formData,
   onChange,
+  onLanguageChange,
   onClose,
   onSubmit,
   isSubmitting,
 }) {
-  const parsedPreview = getOrderedLessonSections(parseLessonContent(formData.content));
+  const previewContent = buildStructuredLessonContent(formData);
+  const parsedPreview = getOrderedLessonSections(parseLessonContent(previewContent));
+  const template = getStructuredLessonTemplate();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#17392d]/35 p-4 backdrop-blur-[2px]">
-      <div className="w-full max-w-3xl rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-2xl">
-        <div className="flex items-start justify-between gap-4">
+      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-[1.8rem] border border-slate-200 bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">
               {mode === 'create' ? 'Add Lesson' : 'Edit Lesson'}
@@ -52,14 +60,15 @@ function LessonFormModal({
           </button>
         </div>
 
-        <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+        <div className="overflow-y-auto px-6 py-5">
+        <form className="space-y-4" onSubmit={onSubmit}>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-slate-700">Language</span>
               <select
                 name="language_id"
                 value={formData.language_id}
-                onChange={onChange}
+                onChange={onLanguageChange}
                 className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500"
               >
                 <option value="">Select a language</option>
@@ -84,21 +93,59 @@ function LessonFormModal({
             </label>
           </div>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-slate-700">Content</span>
-            <p className="mb-2 text-xs leading-5 text-slate-500">
-              Use this structure:
-              {' '}
-              <span className="font-medium text-slate-600">
-                Introduction:, Vocabulary:, Examples:, Note:
-              </span>
+          <div className="rounded-[1.4rem] border border-[#dce6de] bg-[#f8fbf8] px-4 py-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-emerald-700">Content Structure</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Fill the lesson in sections instead of typing raw headings manually. We will still save everything into the existing single content field.
             </p>
+          </div>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-slate-700">Introduction</span>
             <textarea
-              name="content"
-              value={formData.content}
+              name="introduction"
+              value={formData.introduction}
               onChange={onChange}
-              rows={7}
-              placeholder={getStructuredLessonTemplate()}
+              rows={4}
+              placeholder={template.introduction}
+              className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
+            />
+          </label>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-700">Vocabulary</span>
+              <textarea
+                name="vocabulary"
+                value={formData.vocabulary}
+                onChange={onChange}
+                rows={6}
+                placeholder={template.vocabulary}
+                className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-700">Examples</span>
+              <textarea
+                name="examples"
+                value={formData.examples}
+                onChange={onChange}
+                rows={6}
+                placeholder={template.examples}
+                className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
+              />
+            </label>
+          </div>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-slate-700">Note</span>
+            <textarea
+              name="note"
+              value={formData.note}
+              onChange={onChange}
+              rows={3}
+              placeholder={template.note}
               className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
             />
           </label>
@@ -111,9 +158,12 @@ function LessonFormModal({
                 min="1"
                 name="order_number"
                 value={formData.order_number}
-                onChange={onChange}
-                className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500"
+                readOnly
+                className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-700 outline-none"
               />
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                Auto-generated from the selected language.
+              </p>
             </label>
 
             <label className="block">
@@ -199,6 +249,7 @@ function LessonFormModal({
             )}
           </div>
         </div>
+        </div>
       </div>
     </div>
   );
@@ -267,11 +318,16 @@ export default function AdminLessons() {
   };
 
   const openEditModal = (lesson) => {
+    const parsedContent = parseLessonContentForForm(lesson.content || '');
+
     setEditingLesson(lesson);
     setFormData({
       language_id: lesson.language_id || '',
       title: lesson.title || '',
-      content: lesson.content || '',
+      introduction: parsedContent.introduction,
+      vocabulary: parsedContent.vocabulary,
+      examples: parsedContent.examples,
+      note: parsedContent.note,
       order_number: lesson.order_number || 1,
       points: lesson.points || 10,
       is_pro: Number(lesson.is_pro) === 1 ? 1 : 0,
@@ -298,6 +354,61 @@ export default function AdminLessons() {
     }));
   };
 
+  const fetchNextOrderNumber = async (languageId) => {
+    if (!languageId) {
+      return 1;
+    }
+
+    const res = await axios.get(
+      `http://localhost:5000/api/admin/languages/${languageId}/next-order`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return Number(res.data?.nextOrderNumber || 1);
+  };
+
+  const handleLanguageChange = async (event) => {
+    const selectedValue = Number(event.target.value) || '';
+
+    setFormData((current) => ({
+      ...current,
+      language_id: selectedValue,
+    }));
+
+    if (mode !== 'create') {
+      return;
+    }
+
+    if (!selectedValue) {
+      setFormData((current) => ({
+        ...current,
+        language_id: '',
+        order_number: 1,
+      }));
+      return;
+    }
+
+    try {
+      const nextOrderNumber = await fetchNextOrderNumber(selectedValue);
+      setFormData((current) => ({
+        ...current,
+        language_id: selectedValue,
+        order_number: nextOrderNumber,
+      }));
+    } catch (fetchError) {
+      setError('Unable to determine the next order number right now.');
+      setFormData((current) => ({
+        ...current,
+        language_id: selectedValue,
+        order_number: 1,
+      }));
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsSubmitting(true);
@@ -305,8 +416,13 @@ export default function AdminLessons() {
     setNotice('');
 
     try {
+      const payload = {
+        ...formData,
+        content: buildStructuredLessonContent(formData),
+      };
+
       if (mode === 'create') {
-        await axios.post('http://localhost:5000/api/admin/lessons', formData, {
+        await axios.post('http://localhost:5000/api/admin/lessons', payload, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -315,7 +431,7 @@ export default function AdminLessons() {
       } else {
         await axios.put(
           `http://localhost:5000/api/admin/lessons/${editingLesson.id}`,
-          formData,
+          payload,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -580,6 +696,7 @@ export default function AdminLessons() {
           languages={languages}
           formData={formData}
           onChange={handleChange}
+          onLanguageChange={handleLanguageChange}
           onClose={closeModal}
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}

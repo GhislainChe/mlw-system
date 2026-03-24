@@ -282,6 +282,39 @@ const getAdminLessons = async (req, res) => {
   }
 };
 
+const getNextLessonOrderNumber = async (req, res) => {
+  try {
+    const { languageId } = req.params;
+
+    const [languageRows] = await pool.query('SELECT id FROM languages WHERE id = ? LIMIT 1', [
+      languageId,
+    ]);
+
+    if (languageRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Language not found.',
+      });
+    }
+
+    const [[orderRow]] = await pool.query(
+      'SELECT COALESCE(MAX(order_number), 0) AS max_order_number FROM lessons WHERE language_id = ?',
+      [languageId]
+    );
+
+    return res.json({
+      success: true,
+      nextOrderNumber: Number(orderRow?.max_order_number || 0) + 1,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to determine the next lesson order right now.',
+      error: error.message,
+    });
+  }
+};
+
 const createAdminLesson = async (req, res) => {
   try {
     const { language_id, title, content, order_number, points, is_pro } = req.body;
@@ -448,6 +481,7 @@ module.exports = {
   updateAdminLanguage,
   deleteAdminLanguage,
   getAdminLessons,
+  getNextLessonOrderNumber,
   createAdminLesson,
   updateAdminLesson,
   deleteAdminLesson,

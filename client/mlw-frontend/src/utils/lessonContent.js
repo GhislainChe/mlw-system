@@ -62,21 +62,59 @@ export function buildLessonContentPreview(content = '') {
 }
 
 export function getStructuredLessonTemplate() {
-  return [
-    'Introduction:',
-    'Start with a short overview of the lesson topic.',
-    '',
-    'Vocabulary:',
-    'word = meaning',
-    'word = meaning',
-    '',
-    'Examples:',
-    'First example sentence.',
-    'Second example sentence.',
-    '',
-    'Note:',
-    'Add a short cultural or usage note.',
-  ].join('\n');
+  return {
+    introduction: 'Start with a short overview of the lesson topic.',
+    vocabulary: ['word = meaning', 'word = meaning'].join('\n'),
+    examples: ['First example sentence.', 'Second example sentence.'].join('\n'),
+    note: 'Add a short cultural or usage note.',
+  };
+}
+
+export function parseLessonContentForForm(content = '') {
+  const parsed = parseLessonContent(content);
+  const hasStructuredHeadings = Object.keys(parsed).some((key) => SECTION_LABELS.includes(key));
+
+  if (!hasStructuredHeadings) {
+    return {
+      introduction: String(content || '').trim(),
+      vocabulary: '',
+      examples: '',
+      note: '',
+      isFallback: true,
+    };
+  }
+
+  return {
+    introduction: (parsed.Introduction || []).join('\n'),
+    vocabulary: (parsed.Vocabulary || []).join('\n'),
+    examples: (parsed.Examples || []).join('\n'),
+    note: (parsed.Note || []).join('\n'),
+    isFallback: false,
+  };
+}
+
+export function buildStructuredLessonContent({
+  introduction = '',
+  vocabulary = '',
+  examples = '',
+  note = '',
+}) {
+  const sections = [
+    ['Introduction', introduction],
+    ['Vocabulary', vocabulary],
+    ['Examples', examples],
+    ['Note', note],
+  ]
+    .map(([label, value]) => [label, String(value || '').trim()])
+    .filter(([, value]) => value);
+
+  if (!sections.length) {
+    return '';
+  }
+
+  return sections
+    .map(([label, value]) => `${label}:\n${value}`)
+    .join('\n\n');
 }
 
 export function getOrderedLessonSections(parsedContent) {
