@@ -6,9 +6,9 @@ export default function Header({ onMenuOpen }) {
 
   const getPageTitle = () => {
     if (location.pathname.includes('dashboard')) return 'Dashboard';
-    if (location.pathname.includes('languages')) return 'Languages';
+    if (location.pathname.includes('about')) return 'About';
     if (location.pathname.includes('lessons')) return 'Lessons';
-    if (location.pathname.includes('learn')) return 'Learn';
+    if (location.pathname.includes('lesson')) return 'Lesson Player';
     if (location.pathname.includes('leaderboard')) return 'Leaderboard';
     if (location.pathname.includes('profile')) return 'Profile';
     if (location.pathname.includes('settings')) return 'Settings';

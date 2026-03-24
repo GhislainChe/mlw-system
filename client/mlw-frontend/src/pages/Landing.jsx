@@ -153,6 +153,9 @@ export default function Landing() {
             <a href="#home" className="hover:text-emerald-700">
               Home
             </a>
+            <Link to="/about" className="hover:text-emerald-700">
+              About
+            </Link>
             <a href="#languages" className="hover:text-emerald-700">
               Languages
             </a>

@@ -4,11 +4,10 @@ import { logout } from '../utils/auth';
 
 const menuItems = [
   { label: 'Dashboard', to: '/dashboard' },
-  { label: 'Languages', to: '/languages' },
   { label: 'Lessons', to: '/lessons' },
-  { label: 'Learn', to: '/lessons' },
   { label: 'Leaderboard', to: '/leaderboard' },
-  { label: 'Profile', to: '/dashboard' },
+  { label: 'Profile', to: '/profile' },
+  { label: 'Settings', to: '/settings' },
 ];
 
 export default function Sidebar() {

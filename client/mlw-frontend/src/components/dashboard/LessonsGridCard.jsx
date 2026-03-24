@@ -18,14 +18,14 @@ export default function LessonsGridCard({ lesson, index }) {
   const getStatusLabel = () => {
     if (isPro) return 'Pro Lesson';
     if (isCompleted) return 'Completed';
-    if (isStarted) return 'In progress';
-    return 'Not started';
+    if (isStarted) return 'In Progress';
+    return 'Not Started';
   };
 
   const getActionLabel = () => {
-    if (isCompleted) return 'Review';
-    if (isStarted) return 'Continue';
-    return 'Start';
+    if (isCompleted) return 'Review Lesson';
+    if (isStarted) return 'Continue Lesson';
+    return 'Start Lesson';
   };
 
   return (
@@ -47,7 +47,7 @@ export default function LessonsGridCard({ lesson, index }) {
             {getIcon()}
           </div>
           <div>
-            <p className="text-sm text-slate-500">Lesson {index + 1}</p>
+            <p className="text-sm text-slate-500">Lesson {index || lesson.order_number || 1}</p>
             <h3 className="text-lg font-semibold text-[#17392d]">{lesson.title}</h3>
           </div>
         </div>

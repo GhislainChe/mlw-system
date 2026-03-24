@@ -1,10 +1,8 @@
 import {
   BookOpen,
   ChevronRight,
-  Globe,
   House,
   LogOut,
-  PlayCircle,
   Settings,
   Trophy,
   User,
@@ -16,9 +14,7 @@ import { logout } from '../../utils/auth';
 
 const navigationItems = [
   { label: 'Dashboard', to: '/dashboard', icon: House, end: true },
-  { label: 'Languages', to: '/languages', icon: Globe, end: true },
   { label: 'Lessons', to: '/lessons', icon: BookOpen, end: false },
-  { label: 'Learn', to: '/learn', icon: PlayCircle, end: true },
   { label: 'Leaderboard', to: '/leaderboard', icon: Trophy, end: true },
   { label: 'Profile', to: '/profile', icon: User, end: true },
   { label: 'Settings', to: '/settings', icon: Settings, end: true },
