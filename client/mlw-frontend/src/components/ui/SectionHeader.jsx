@@ -4,7 +4,7 @@ export default function SectionHeader({ eyebrow, title, subtitle, className = ''
       {eyebrow ? (
         <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">{eyebrow}</p>
       ) : null}
-      <h2 className="mt-1 text-[1.3rem] font-semibold tracking-[-0.03em] text-[#17392d]">
+      <h2 className="mt-1 font-heading text-[1.3rem] font-semibold tracking-[-0.03em] text-[#17392d]">
         {title}
       </h2>
       {subtitle ? (

@@ -11,6 +11,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 
 import EmptyStateCard from '../components/ui/EmptyStateCard';
+import LoadingStateCard from '../components/ui/LoadingStateCard';
 import ProgressBar from '../components/ui/ProgressBar';
 
 function MetricCard({ icon: Icon, label, value, tone }) {
@@ -56,10 +57,12 @@ function formatActivityDate(value) {
 export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        setLoading(true);
         const token = localStorage.getItem('token');
 
         const res = await axios.get('http://localhost:5000/api/profile', {
@@ -71,6 +74,8 @@ export default function Profile() {
         setProfile(res.data);
       } catch (fetchError) {
         setError('Unable to load your profile right now.');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -117,6 +122,16 @@ export default function Profile() {
     ],
     [personalStats]
   );
+
+  if (loading) {
+    return (
+      <LoadingStateCard
+        title="Loading profile"
+        description="We are gathering your learner profile and latest progress."
+        className="border-slate-200 bg-white"
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

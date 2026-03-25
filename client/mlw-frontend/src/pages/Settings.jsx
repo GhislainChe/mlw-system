@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Lock, LogOut, Settings2, SlidersHorizontal, UserCircle2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import LoadingStateCard from '../components/ui/LoadingStateCard';
 import { logout } from '../utils/auth';
 
 function ReadOnlyField({ label, value }) {
@@ -16,10 +17,12 @@ function ReadOnlyField({ label, value }) {
 export default function Settings() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        setLoading(true);
         const token = localStorage.getItem('token');
 
         const res = await axios.get('http://localhost:5000/api/profile', {
@@ -31,6 +34,8 @@ export default function Settings() {
         setProfile(res.data);
       } catch (fetchError) {
         setError('Unable to load your settings right now.');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -38,6 +43,16 @@ export default function Settings() {
   }, []);
 
   const user = profile?.user || {};
+
+  if (loading) {
+    return (
+      <LoadingStateCard
+        title="Loading settings"
+        description="We are fetching your account details and preferences."
+        className="border-slate-200 bg-white"
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

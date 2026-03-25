@@ -1,13 +1,14 @@
-import axios from "axios";
-import { ArrowLeft, ArrowRight, BookOpen, CircleDashed, Languages, Sparkles } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import axios from 'axios';
+import { ArrowLeft, ArrowRight, BookOpen, CircleDashed, Languages, Sparkles } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import LanguagesGridCard from "../components/dashboard/LanguagesGridCard";
-import LessonsGridCard from "../components/dashboard/LessonsGridCard";
-import EmptyStateCard from "../components/ui/EmptyStateCard";
-import ProgressBar from "../components/ui/ProgressBar";
-import SectionHeader from "../components/ui/SectionHeader";
+import LanguagesGridCard from '../components/dashboard/LanguagesGridCard';
+import LessonsGridCard from '../components/dashboard/LessonsGridCard';
+import EmptyStateCard from '../components/ui/EmptyStateCard';
+import LoadingStateCard from '../components/ui/LoadingStateCard';
+import ProgressBar from '../components/ui/ProgressBar';
+import SectionHeader from '../components/ui/SectionHeader';
 
 export default function Lessons() {
   const navigate = useNavigate();
@@ -16,15 +17,24 @@ export default function Lessons() {
   const [lessons, setLessons] = useState([]);
   const [recentProgress, setRecentProgress] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState(null);
+  const [hubLoading, setHubLoading] = useState(true);
+  const [languageLoading, setLanguageLoading] = useState(true);
+  const [hubError, setHubError] = useState('');
+  const [languageError, setLanguageError] = useState('');
 
   useEffect(() => {
     const fetchLessonsHub = async () => {
-      if (languageId) return;
+      if (languageId) {
+        setHubLoading(false);
+        return;
+      }
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
+      setHubLoading(true);
+      setHubError('');
 
       try {
-        const languageRes = await axios.get("http://localhost:5000/api/languages");
+        const languageRes = await axios.get('http://localhost:5000/api/languages');
         const languageRows = Array.isArray(languageRes.data?.languages)
           ? languageRes.data.languages
           : Array.isArray(languageRes.data)
@@ -33,30 +43,34 @@ export default function Lessons() {
 
         setLanguages(languageRows);
       } catch (error) {
-        console.error("Failed to fetch languages", error);
+        console.error('Failed to fetch languages', error);
         setLanguages([]);
+        setHubError('Unable to load lessons right now.');
       }
 
       if (!token) {
         setRecentProgress(null);
+        setHubLoading(false);
         return;
       }
 
       try {
         const progressRes = await axios.get(
-          "http://localhost:5000/api/progress/recent",
+          'http://localhost:5000/api/progress/recent',
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          },
+          }
         );
 
         const data = progressRes.data;
         setRecentProgress(data?.lesson_id ? data : null);
       } catch (error) {
-        console.error("Failed to fetch recent progress", error);
+        console.error('Failed to fetch recent progress', error);
         setRecentProgress(null);
+      } finally {
+        setHubLoading(false);
       }
     };
 
@@ -68,13 +82,16 @@ export default function Lessons() {
       if (!languageId) {
         setLessons([]);
         setSelectedLanguage(null);
+        setLanguageLoading(false);
         return;
       }
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
+      setLanguageLoading(true);
+      setLanguageError('');
 
       try {
-        const languageRes = await axios.get("http://localhost:5000/api/languages");
+        const languageRes = await axios.get('http://localhost:5000/api/languages');
         const languageRows = Array.isArray(languageRes.data?.languages)
           ? languageRes.data.languages
           : Array.isArray(languageRes.data)
@@ -86,7 +103,7 @@ export default function Lessons() {
           languageRows.find((item) => Number(item.id) === Number(languageId)) || null,
         );
       } catch (error) {
-        console.error("Failed to fetch languages", error);
+        console.error('Failed to fetch languages', error);
         setSelectedLanguage(null);
       }
 
@@ -94,15 +111,17 @@ export default function Lessons() {
 
       try {
         const lessonsRes = await axios.get(
-          `http://localhost:5000/api/lessons/language/${languageId}`,
+          `http://localhost:5000/api/lessons/language/${languageId}`
         );
 
         lessonRows = Array.isArray(lessonsRes.data?.lessons)
           ? lessonsRes.data.lessons
           : [];
       } catch (error) {
-        console.error("Failed to fetch lessons", error);
+        console.error('Failed to fetch lessons', error);
         setLessons([]);
+        setLanguageError('Unable to load lessons for this language right now.');
+        setLanguageLoading(false);
         return;
       }
 
@@ -110,7 +129,7 @@ export default function Lessons() {
 
       if (token) {
         try {
-          const progressRes = await axios.get("http://localhost:5000/api/progress", {
+          const progressRes = await axios.get('http://localhost:5000/api/progress', {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -122,7 +141,7 @@ export default function Lessons() {
               ? progressRes.data
               : [];
         } catch (error) {
-          console.error("Failed to fetch progress", error);
+          console.error('Failed to fetch progress', error);
           progressRows = [];
         }
       }
@@ -146,6 +165,7 @@ export default function Lessons() {
         .sort((a, b) => Number(a.order_number || 0) - Number(b.order_number || 0));
 
       setLessons(mergedLessons);
+      setLanguageLoading(false);
     };
 
     fetchLanguageLessons();
@@ -192,13 +212,24 @@ export default function Lessons() {
           </p>
         </section>
 
+        {hubError ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
+            {hubError}
+          </div>
+        ) : null}
+
         <section className="space-y-4">
           <SectionHeader
             title="Continue Learning"
             subtitle="Return to the lesson you last worked on."
           />
 
-          {recentProgress ? (
+          {hubLoading ? (
+            <LoadingStateCard
+              title="Loading your lessons hub"
+              description="We are preparing your latest lesson activity and language paths."
+            />
+          ) : recentProgress ? (
             <section className="rounded-[1.8rem] border border-emerald-100 bg-gradient-to-r from-[#f5fbf7] via-white to-[#eef7f1] p-5 shadow-sm sm:p-6">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="space-y-4">
@@ -250,11 +281,25 @@ export default function Lessons() {
             subtitle="Explore all available language paths and begin learning with guided lessons."
           />
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {languages.map((language) => (
-              <LanguagesGridCard key={language.id} language={language} />
-            ))}
-          </div>
+          {hubLoading ? (
+            <LoadingStateCard
+              title="Loading language paths"
+              description="We are fetching the available language paths for you."
+            />
+          ) : languages.length ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {languages.map((language) => (
+                <LanguagesGridCard key={language.id} language={language} />
+              ))}
+            </div>
+          ) : (
+            <EmptyStateCard
+              icon={Languages}
+              title="No languages available yet"
+              description="Language paths will appear here once they are added to the platform."
+              className="border-slate-200 bg-white"
+            />
+          )}
         </section>
       </div>
     );
@@ -262,12 +307,18 @@ export default function Lessons() {
 
   return (
     <div className="space-y-5">
+      {languageError ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
+          {languageError}
+        </div>
+      ) : null}
+
       <section className="overflow-hidden rounded-[1.9rem] border border-[#dce6de] bg-white shadow-sm">
         <div className="grid items-center gap-0 lg:grid-cols-[minmax(0,1.1fr)_300px]">
           <div className="px-6 py-5 sm:px-7 sm:py-6">
             <button
               type="button"
-              onClick={() => navigate("/lessons")}
+              onClick={() => navigate('/lessons')}
               className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition duration-200 hover:text-[#17392d]"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -280,11 +331,11 @@ export default function Lessons() {
             </div>
 
             <h2 className="mt-3 text-[1.7rem] font-semibold tracking-[-0.04em] text-[#17392d] sm:text-[2.05rem]">
-              {selectedLanguage?.name || "Language Lessons"}
+              {selectedLanguage?.name || 'Language Lessons'}
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
               {selectedLanguage?.description ||
-                "Move through lessons in order and keep your progress steady as you learn."}
+                'Move through lessons in order and keep your progress steady as you learn.'}
             </p>
 
             <div className="mt-4 flex flex-wrap gap-3 text-sm">
@@ -311,9 +362,9 @@ export default function Lessons() {
             <img
               src={
                 selectedLanguage?.image_url ||
-                "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"
+                'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80'
               }
-              alt={selectedLanguage?.name || "Language"}
+              alt={selectedLanguage?.name || 'Language'}
               className="h-52 w-full rounded-[1.5rem] object-cover lg:h-56"
             />
           </div>
@@ -361,7 +412,13 @@ export default function Lessons() {
           subtitle="Start where you are, continue from saved progress, or review completed lessons."
         />
 
-        {lessons.length ? (
+        {languageLoading ? (
+          <LoadingStateCard
+            title="Loading lessons"
+            description="We are preparing this language path and your saved progress."
+            className="border-slate-200 bg-white"
+          />
+        ) : lessons.length ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {lessons.map((lesson) => (
               <LessonsGridCard

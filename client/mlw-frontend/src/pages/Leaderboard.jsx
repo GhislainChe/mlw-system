@@ -3,6 +3,7 @@ import { Award, Medal, Star, Trophy } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import EmptyStateCard from '../components/ui/EmptyStateCard';
+import LoadingStateCard from '../components/ui/LoadingStateCard';
 import SectionHeader from '../components/ui/SectionHeader';
 
 function getCurrentUserId() {
@@ -53,15 +54,19 @@ function SpotlightCard({ leader, tone }) {
 export default function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
+        setLoading(true);
         const res = await axios.get('http://localhost:5000/api/leaderboard');
         setLeaderboard(Array.isArray(res.data?.leaderboard) ? res.data.leaderboard : []);
       } catch (fetchError) {
         setError('Unable to load the leaderboard right now.');
         setLeaderboard([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -93,7 +98,13 @@ export default function Leaderboard() {
         </div>
       ) : null}
 
-      {leaderboard.length === 0 && !error ? (
+      {loading ? (
+        <LoadingStateCard
+          title="Loading leaderboard"
+          description="We are gathering the latest rankings for learners across MLW."
+          className="border-slate-200 bg-white"
+        />
+      ) : leaderboard.length === 0 && !error ? (
         <EmptyStateCard
           icon={Award}
           title="No leaderboard data yet"

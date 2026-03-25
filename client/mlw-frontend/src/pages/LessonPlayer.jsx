@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import LoadingStateCard from '../components/ui/LoadingStateCard';
 import ProgressBar from '../components/ui/ProgressBar';
 import { getOrderedLessonSections, parseLessonContent } from '../utils/lessonContent';
 
@@ -27,8 +28,6 @@ export default function LessonPlayer() {
 
   useEffect(() => {
     const fetchLesson = async () => {
-      console.log('lessonId:', lessonId);
-
       if (!lessonId) {
         setLoading(false);
         setError('Lesson not found.');
@@ -37,16 +36,12 @@ export default function LessonPlayer() {
 
       try {
         const lessonResponse = await axios.get(`http://localhost:5000/api/lessons/${lessonId}`);
-        console.log('lesson response:', lessonResponse.data);
 
         let lessonData = lessonResponse.data?.lesson || lessonResponse.data || null;
-        console.log('parsed lesson:', lessonData);
 
         if (!lessonData || !lessonData.id) {
           const fallbackResponse = await axios.get(`http://localhost:5000/api/lesson/${lessonId}`);
-          console.log('lesson response:', fallbackResponse.data);
           lessonData = fallbackResponse.data?.lesson || fallbackResponse.data || null;
-          console.log('parsed lesson:', lessonData);
         }
 
         if (!lessonData || !lessonData.id) {
@@ -131,8 +126,6 @@ export default function LessonPlayer() {
         completed: 1,
       };
 
-      console.log('submit payload', payload);
-
       await axios.post(
         'http://localhost:5000/api/progress',
         payload,
@@ -157,12 +150,11 @@ export default function LessonPlayer() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[320px] items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center gap-3 text-sm text-slate-600">
-          <LoaderCircle className="h-5 w-5 animate-spin text-emerald-600" />
-          Loading lesson...
-        </div>
-      </div>
+      <LoadingStateCard
+        title="Loading lesson"
+        description="We are preparing the lesson content and your saved progress."
+        className="border-slate-200 bg-white"
+      />
     );
   }
 

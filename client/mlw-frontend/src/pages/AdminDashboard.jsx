@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import EmptyStateCard from '../components/ui/EmptyStateCard';
+import LoadingStateCard from '../components/ui/LoadingStateCard';
 import SectionHeader from '../components/ui/SectionHeader';
 
 function SummaryCard({ icon: Icon, label, value, tone }) {
@@ -29,10 +30,13 @@ export default function AdminDashboard() {
     recent_activity: [],
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSummary = async () => {
       try {
+        setLoading(true);
+        setError('');
         const token = localStorage.getItem('token');
         const res = await axios.get('http://localhost:5000/api/admin/dashboard', {
           headers: {
@@ -50,6 +54,8 @@ export default function AdminDashboard() {
         });
       } catch (fetchError) {
         setError('Unable to load admin dashboard data right now.');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -103,103 +109,117 @@ export default function AdminDashboard() {
         </div>
       ) : null}
 
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {summaryCards.map((card) => (
-          <SummaryCard key={card.label} {...card} />
-        ))}
-      </section>
-
-      <section className="rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-sm">
-        <SectionHeader
-          title="Quick Actions"
-          subtitle="Jump directly into the main admin tasks."
+      {loading ? (
+        <LoadingStateCard
+          title="Loading admin dashboard"
+          description="We are gathering platform totals and recent activity."
+          className="border-slate-200 bg-white"
         />
+      ) : null}
 
-        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
-          {quickActions.map((action) => (
-            <button
-              key={action.label}
-              type="button"
-              onClick={() => navigate(action.to)}
-              className="flex items-center justify-between rounded-[1.5rem] border border-slate-200 bg-[#fbfcfa] px-4 py-4 text-left shadow-sm transition duration-200 hover:border-emerald-200 hover:bg-emerald-50/40"
-            >
-              <div>
-                <p className="text-base font-semibold text-[#17392d]">{action.label}</p>
-                <p className="mt-1 text-sm leading-6 text-slate-600">{action.description}</p>
-              </div>
-              <span className="ml-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm">
-                <ArrowRight className="h-4 w-4" />
-              </span>
-            </button>
+      {!loading ? (
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {summaryCards.map((card) => (
+            <SummaryCard key={card.label} {...card} />
           ))}
-        </div>
-      </section>
+        </section>
+      ) : null}
 
-      <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <article className="rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-sm">
+      {!loading ? (
+        <section className="rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-sm">
           <SectionHeader
-            title="Recent Users"
-            subtitle="Latest learner accounts created in the system."
+            title="Quick Actions"
+            subtitle="Jump directly into the main admin tasks."
           />
 
-          {summary.recent_users.length ? (
-            <div className="mt-5 space-y-3">
-              {summary.recent_users.map((user) => (
-                <div
-                  key={user.id}
-                  className="rounded-[1.4rem] border border-slate-200 bg-[#fbfcfa] px-4 py-4"
-                >
-                  <p className="text-base font-semibold text-[#17392d]">{user.full_name}</p>
-                  <p className="mt-1 text-sm text-slate-600">{user.email}</p>
-                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
-                    {user.role}
-                  </p>
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {quickActions.map((action) => (
+              <button
+                key={action.label}
+                type="button"
+                onClick={() => navigate(action.to)}
+                className="flex items-center justify-between rounded-[1.5rem] border border-slate-200 bg-[#fbfcfa] px-4 py-4 text-left shadow-sm transition duration-200 hover:border-emerald-200 hover:bg-emerald-50/40"
+              >
+                <div>
+                  <p className="text-base font-semibold text-[#17392d]">{action.label}</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">{action.description}</p>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyStateCard
-              icon={Users}
-              title="No recent users"
-              description="Newly registered users will appear here."
-              className="mt-5"
-            />
-          )}
-        </article>
+                <span className="ml-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm">
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
-        <article className="rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-sm">
-          <SectionHeader
-            title="Recent Activity"
-            subtitle="Latest lesson activity across the platform."
-          />
-
-          {summary.recent_activity.length ? (
-            <div className="mt-5 space-y-3">
-              {summary.recent_activity.map((activity, index) => (
-                <div
-                  key={`${activity.user_name}-${activity.lesson_title}-${index}`}
-                  className="rounded-[1.4rem] border border-slate-200 bg-[#fbfcfa] px-4 py-4"
-                >
-                  <p className="text-base font-semibold text-[#17392d]">{activity.user_name}</p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {activity.lesson_title} - {activity.language_name}
-                  </p>
-                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
-                    {activity.completed === 1 ? 'Completed' : `${activity.progress_percent}% progress`}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyStateCard
-              icon={BookOpen}
-              title="No recent activity"
-              description="Recent lesson progress will appear here once learners start using the platform."
-              className="mt-5"
+      {!loading ? (
+        <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <article className="rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <SectionHeader
+              title="Recent Users"
+              subtitle="Latest learner accounts created in the system."
             />
-          )}
-        </article>
-      </section>
+
+            {summary.recent_users.length ? (
+              <div className="mt-5 space-y-3">
+                {summary.recent_users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="rounded-[1.4rem] border border-slate-200 bg-[#fbfcfa] px-4 py-4"
+                  >
+                    <p className="text-base font-semibold text-[#17392d]">{user.full_name}</p>
+                    <p className="mt-1 text-sm text-slate-600">{user.email}</p>
+                    <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                      {user.role}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyStateCard
+                icon={Users}
+                title="No recent users"
+                description="Newly registered users will appear here."
+                className="mt-5"
+              />
+            )}
+          </article>
+
+          <article className="rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <SectionHeader
+              title="Recent Activity"
+              subtitle="Latest lesson activity across the platform."
+            />
+
+            {summary.recent_activity.length ? (
+              <div className="mt-5 space-y-3">
+                {summary.recent_activity.map((activity, index) => (
+                  <div
+                    key={`${activity.user_name}-${activity.lesson_title}-${index}`}
+                    className="rounded-[1.4rem] border border-slate-200 bg-[#fbfcfa] px-4 py-4"
+                  >
+                    <p className="text-base font-semibold text-[#17392d]">{activity.user_name}</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {activity.lesson_title} - {activity.language_name}
+                    </p>
+                    <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                      {activity.completed === 1 ? 'Completed' : `${activity.progress_percent}% progress`}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyStateCard
+                icon={BookOpen}
+                title="No recent activity"
+                description="Recent lesson progress will appear here once learners start using the platform."
+                className="mt-5"
+              />
+            )}
+          </article>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import LessonCard from '../components/dashboard/LessonCard';
 import StatCard from '../components/dashboard/StatCard';
 import EmptyStateCard from '../components/ui/EmptyStateCard';
+import LoadingStateCard from '../components/ui/LoadingStateCard';
 import ProgressBar from '../components/ui/ProgressBar';
 import SectionHeader from '../components/ui/SectionHeader';
 
@@ -20,6 +21,8 @@ export default function Dashboard() {
   const [continueLesson, setContinueLesson] = useState(null);
   const [recentLessons, setRecentLessons] = useState([]);
   const [error, setError] = useState('');
+  const [isContinueLoading, setIsContinueLoading] = useState(true);
+  const [isRecentLoading, setIsRecentLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -44,6 +47,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchContinueLearning = async () => {
       try {
+        setIsContinueLoading(true);
         const token = localStorage.getItem('token');
 
         const res = await axios.get('http://localhost:5000/api/dashboard/continue-learning', {
@@ -56,6 +60,8 @@ export default function Dashboard() {
       } catch (fetchError) {
         console.error('Failed to load continue learning lesson', fetchError);
         setContinueLesson(null);
+      } finally {
+        setIsContinueLoading(false);
       }
     };
 
@@ -65,6 +71,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchRecentLessons = async () => {
       try {
+        setIsRecentLoading(true);
         const token = localStorage.getItem('token');
 
         const res = await axios.get('http://localhost:5000/api/dashboard/recent-lessons', {
@@ -76,6 +83,9 @@ export default function Dashboard() {
         setRecentLessons(Array.isArray(res.data) ? res.data.slice(0, 3) : []);
       } catch (fetchError) {
         console.error('Failed to load recent lessons', fetchError);
+        setRecentLessons([]);
+      } finally {
+        setIsRecentLoading(false);
       }
     };
 
@@ -120,7 +130,12 @@ export default function Dashboard() {
           className="mb-4"
         />
 
-        {continueLesson ? (
+        {isContinueLoading ? (
+          <LoadingStateCard
+            title="Loading continue learning"
+            description="We are finding the best lesson for you to resume."
+          />
+        ) : continueLesson ? (
           <div className="rounded-[1.8rem] border border-emerald-100 bg-gradient-to-r from-[#f5fbf7] via-white to-[#eef7f1] p-5 shadow-sm sm:p-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div className="space-y-4">
@@ -176,7 +191,12 @@ export default function Dashboard() {
           className="mb-4"
         />
 
-        {recentLessons.length ? (
+        {isRecentLoading ? (
+          <LoadingStateCard
+            title="Loading recent lessons"
+            description="We are pulling in your latest lesson activity."
+          />
+        ) : recentLessons.length ? (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             {recentLessons.map((lesson) => (
               <LessonCard key={lesson.lesson_id} lesson={lesson} />

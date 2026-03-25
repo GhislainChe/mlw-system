@@ -3,6 +3,7 @@ import { Edit3, Globe2, Image as ImageIcon, Plus, Trash2, X } from 'lucide-react
 import { useEffect, useMemo, useState } from 'react';
 
 import EmptyStateCard from '../components/ui/EmptyStateCard';
+import LoadingStateCard from '../components/ui/LoadingStateCard';
 import SectionHeader from '../components/ui/SectionHeader';
 
 const emptyForm = {
@@ -21,7 +22,7 @@ function LanguageFormModal({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#17392d]/35 p-4 backdrop-blur-[2px]">
-      <div className="w-full max-w-2xl rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-2xl">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">
@@ -115,11 +116,14 @@ export default function AdminLanguages() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingLanguage, setEditingLanguage] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
+  const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem('token');
 
   const fetchLanguages = async () => {
     try {
+      setLoading(true);
+      setError('');
       const res = await axios.get('http://localhost:5000/api/admin/languages', {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -129,6 +133,9 @@ export default function AdminLanguages() {
       setLanguages(Array.isArray(res.data?.languages) ? res.data.languages : []);
     } catch (fetchError) {
       setError('Unable to load admin languages right now.');
+      setLanguages([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -200,7 +207,7 @@ export default function AdminLanguages() {
       }
 
       closeModal();
-      fetchLanguages();
+      await fetchLanguages();
     } catch (submitError) {
       setError(
         submitError.response?.data?.message ||
@@ -232,7 +239,7 @@ export default function AdminLanguages() {
       );
 
       setNotice(res.data?.message || 'Language deleted successfully.');
-      fetchLanguages();
+      await fetchLanguages();
     } catch (deleteError) {
       setError(
         deleteError.response?.data?.message ||
@@ -274,7 +281,13 @@ export default function AdminLanguages() {
         </div>
       ) : null}
 
-      {languages.length ? (
+      {loading ? (
+        <LoadingStateCard
+          title="Loading languages"
+          description="We are fetching the language catalog for administration."
+          className="border-slate-200 bg-white"
+        />
+      ) : languages.length ? (
         <>
           <section className="hidden overflow-hidden rounded-[1.8rem] border border-slate-200 bg-white shadow-sm lg:block">
             <div className="grid grid-cols-[88px_1.2fr_2fr_120px_180px] gap-4 border-b border-slate-200 bg-[#f8fbf8] px-5 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">

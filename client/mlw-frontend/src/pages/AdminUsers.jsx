@@ -3,6 +3,7 @@ import axios from 'axios';
 import { CalendarDays, Mail, ShieldCheck, Users } from 'lucide-react';
 
 import EmptyStateCard from '../components/ui/EmptyStateCard';
+import LoadingStateCard from '../components/ui/LoadingStateCard';
 import SectionHeader from '../components/ui/SectionHeader';
 import { getToken } from '../utils/auth';
 
@@ -74,9 +75,11 @@ export default function AdminUsers() {
         </div>
 
         {loading ? (
-          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 py-10 text-center text-sm text-slate-500">
-            Loading users...
-          </div>
+          <LoadingStateCard
+            title="Loading users"
+            description="We are fetching the current list of registered accounts."
+            className="border-slate-200 bg-slate-50"
+          />
         ) : error ? (
           <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
             {error}

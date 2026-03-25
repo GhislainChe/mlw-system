@@ -3,6 +3,7 @@ import { BookOpen, Edit3, Filter, Plus, Search, Star, Trash2, X } from 'lucide-r
 import { useEffect, useMemo, useState } from 'react';
 
 import EmptyStateCard from '../components/ui/EmptyStateCard';
+import LoadingStateCard from '../components/ui/LoadingStateCard';
 import SectionHeader from '../components/ui/SectionHeader';
 import {
   buildLessonContentPreview,
@@ -63,34 +64,34 @@ function LessonFormModal({
         <div className="overflow-y-auto px-6 py-5">
           <form className="space-y-4" onSubmit={onSubmit}>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700">Language</span>
-              <select
-                name="language_id"
-                value={formData.language_id}
-                onChange={onLanguageChange}
-                className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500"
-              >
-                <option value="">Select a language</option>
-                {languages.map((language) => (
-                  <option key={language.id} value={language.id}>
-                    {language.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-700">Language</span>
+                <select
+                  name="language_id"
+                  value={formData.language_id}
+                  onChange={onLanguageChange}
+                  className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500"
+                >
+                  <option value="">Select a language</option>
+                  {languages.map((language) => (
+                    <option key={language.id} value={language.id}>
+                      {language.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700">Title</span>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={onChange}
-                placeholder="Enter lesson title"
-                className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
-              />
-            </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-700">Title</span>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={onChange}
+                  placeholder="Enter lesson title"
+                  className="w-full rounded-2xl border border-slate-200 bg-[#fbfbf7] px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500"
+                />
+              </label>
             </div>
 
             <div className="rounded-[1.4rem] border border-[#dce6de] bg-[#f8fbf8] px-4 py-4">
@@ -266,11 +267,14 @@ export default function AdminLessons() {
   const [formData, setFormData] = useState(emptyForm);
   const [selectedLanguage, setSelectedLanguage] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem('token');
 
   const fetchPageData = async () => {
     try {
+      setLoading(true);
+      setError('');
       const [languagesRes, lessonsRes] = await Promise.all([
         axios.get('http://localhost:5000/api/admin/languages', {
           headers: {
@@ -288,6 +292,10 @@ export default function AdminLessons() {
       setLessons(Array.isArray(lessonsRes.data?.lessons) ? lessonsRes.data.lessons : []);
     } catch (fetchError) {
       setError('Unable to load admin lessons right now.');
+      setLanguages([]);
+      setLessons([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -442,7 +450,7 @@ export default function AdminLessons() {
       }
 
       closeModal();
-      fetchPageData();
+      await fetchPageData();
     } catch (submitError) {
       setError(
         submitError.response?.data?.message || 'Unable to save this lesson right now.'
@@ -473,7 +481,7 @@ export default function AdminLessons() {
       );
 
       setNotice(res.data?.message || 'Lesson deleted successfully.');
-      fetchPageData();
+      await fetchPageData();
     } catch (deleteError) {
       setError(
         deleteError.response?.data?.message ||
@@ -574,7 +582,13 @@ export default function AdminLessons() {
         </div>
       ) : null}
 
-      {filteredLessons.length ? (
+      {loading ? (
+        <LoadingStateCard
+          title="Loading lessons"
+          description="We are fetching lesson records and available language filters."
+          className="border-slate-200 bg-white"
+        />
+      ) : filteredLessons.length ? (
         <>
           <section className="hidden overflow-hidden rounded-[1.8rem] border border-slate-200 bg-white shadow-sm xl:block">
             <div className="grid grid-cols-[80px_minmax(0,1.2fr)_160px_90px_100px_minmax(0,1.55fr)_170px] gap-4 border-b border-slate-200 bg-[#f8fbf8] px-5 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
