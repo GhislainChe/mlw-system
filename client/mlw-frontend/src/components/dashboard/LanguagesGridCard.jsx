@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { getLanguageImage } from '../../utils/languageImages';
 
 export default function LanguagesGridCard({ language }) {
   const navigate = useNavigate();
@@ -22,10 +23,7 @@ export default function LanguagesGridCard({ language }) {
     >
       <div className="h-48 overflow-hidden">
         <img
-          src={
-            language.image_url ||
-            'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80'
-          }
+          src={getLanguageImage(language)}
           alt={language.name}
           className="h-full w-full object-cover"
         />

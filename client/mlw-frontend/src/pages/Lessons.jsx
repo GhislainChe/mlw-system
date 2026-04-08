@@ -9,6 +9,7 @@ import EmptyStateCard from '../components/ui/EmptyStateCard';
 import LoadingStateCard from '../components/ui/LoadingStateCard';
 import ProgressBar from '../components/ui/ProgressBar';
 import SectionHeader from '../components/ui/SectionHeader';
+import { getLanguageImage } from '../utils/languageImages';
 
 export default function Lessons() {
   const navigate = useNavigate();
@@ -360,10 +361,7 @@ export default function Lessons() {
 
           <div className="border-t border-[#e3ece4] bg-[#f7faf7] p-4 lg:border-l lg:border-t-0">
             <img
-              src={
-                selectedLanguage?.image_url ||
-                'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80'
-              }
+              src={getLanguageImage(selectedLanguage)}
               alt={selectedLanguage?.name || 'Language'}
               className="h-52 w-full rounded-[1.5rem] object-cover lg:h-56"
             />
